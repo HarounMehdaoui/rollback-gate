@@ -1,7 +1,10 @@
 // One normalized effect of a migration statement. Rules only ever see these, never SQL or the AST
 // (ARCHITECTURE.md §10, rule 3). Which rule reads which kind: RULES.md §4.
 
-/** Merges an intersection into one plain object type, so hovers and errors show a single shape. */
+/**
+ * Merges an intersection into one plain object type, so each variant is *equal* to its flat shape
+ * (type tests compare against it). Error messages may still print the `Flatten<…>` alias.
+ */
 type Flatten<T> = { [P in keyof T]: T[P] };
 
 /** One variant of `Change`: a fixed `kind` plus its fields. */
