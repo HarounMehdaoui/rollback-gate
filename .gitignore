@@ -1,0 +1,64 @@
+# --- Dependencies ---
+node_modules/
+.pnpm-store/
+
+# --- Build output ---
+dist/
+build/
+*.tsbuildinfo
+
+# --- Tests & coverage ---
+coverage/
+.vitest/
+*.lcov
+
+# --- Logs ---
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Environment & secrets ---
+# Real env files must never be committed. Example files ARE committed:
+# the config contract reads .env.example.
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# --- Signing material (cosign / Sigstore) ---
+# Keyless signing is the default (ADR-0012); never commit a fallback key.
+*.key
+*.pem
+cosign.key
+cosign.pub.local
+
+# --- Rollback Gate local output ---
+.rollbackgate/
+rollbackgate-report.json
+*.intoto.jsonl
+*.sigstore.json
+
+# --- Kubernetes / kind local files ---
+kubeconfig
+*.kubeconfig
+
+# --- Prisma ---
+# Generated client in the demo app (migrations and schema.prisma ARE committed)
+examples/**/node_modules/.prisma/
+examples/**/generated/
+
+# --- Editors & OS ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# --- Misc ---
+tmp/
+.cache/
