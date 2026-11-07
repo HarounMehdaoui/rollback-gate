@@ -50,79 +50,57 @@
 scenario folders. Everything slow or flaky (git, Docker, cosign) sits at the edges and is tested less
 often, mostly end to end.
 
-## 3. Core types (sketch, final shapes decided in T1.02)
+## 3. Core types
+
+The source of truth is `packages/core/src/` (one file per type, with TSDoc). This is the overview.
 
 ```ts
 type Severity = 'SAFE' | 'RISKY' | 'UNSAFE';
-type FindingSeverity = Exclude<Severity, 'SAFE'>;   // rules never emit SAFE (see RULES.md §3)
+type FindingSeverity = Exclude<Severity, 'SAFE'>;   // rules never emit SAFE (RULES.md §3)
 
 interface Snapshot {
-  ref: string;                       // git ref or digest it was built from
-  prismaSchema: string;              // raw schema.prisma text
-  migrations: MigrationFile[];       // { name, sql, sha256 } in apply order
-  envContract?: EnvContract;         // Phase 2
+  ref: string;                          // git ref or digest it was built from
+  prismaSchema: string;                 // raw schema.prisma text
+  migrations: readonly MigrationFile[]; // { name, sql, sha256 } in apply order
+  // envContract: Phase 2
 }
 
-// What base's code can touch. Type lives in core (rules need it); db builds it.
-interface UsedSet {
-  tables: ReadonlyMap<string, UsedTable>;      // key: real DB table name (@@map resolved)
-  enums: ReadonlyMap<string, UsedEnum>;        // key: real DB enum name
-}
-interface UsedTable { model: string; columns: ReadonlyMap<string, UsedColumn> }  // key: DB column name
+// What base's code can touch. Type lives in core (rules need it); db builds it (T1.06).
+interface UsedSet { tables: ReadonlyMap<string, UsedTable>; enums: ReadonlyMap<string, UsedEnum> }
+interface UsedTable { model: string; columns: ReadonlyMap<string, UsedColumn> }  // keys: DB names
 interface UsedColumn {
-  field: string;                     // Prisma field name
-  prismaType: string;                // 'String' | 'Int' | … | an enum name
-  nativeType: string;                // '@db.*' type, or Prisma's default native type for the scalar
+  field: string;               // Prisma field name
+  prismaType: string;          // 'String' | 'Int' | … | an enum's Prisma name
+  nativeType: string | null;   // Postgres type; null = couldn't resolve → RG-DB-008 (UNSAFE)
   isOptional: boolean;
   isList: boolean;
-  default?: string;                  // raw @default(...) expression
-  enumName?: string;
+  default?: string;            // raw @default(...) text; classified by RG-DB-011 after the T1.05 lab
+  enumName?: string;           // DB name of the enum type, for enum columns
 }
 interface UsedEnum { values: readonly string[] }
 
-// Full list and the rule for each kind: docs/RULES.md.
-type Change =
-  // tables
-  | { kind: 'CreateTable'; table: string }
-  | { kind: 'DropTable'; table: string }
-  | { kind: 'RenameTable'; from: string; to: string }
-  // columns
-  | { kind: 'AddColumn'; table: string; column: string; isNullable: boolean; hasDefault: boolean }
-  | { kind: 'DropColumn'; table: string; column: string }
-  | { kind: 'RenameColumn'; table: string; from: string; to: string }
-  | { kind: 'AlterColumnType'; table: string; column: string; toType: string; hasUsing: boolean }
-  | { kind: 'SetNotNull' | 'DropNotNull' | 'SetDefault' | 'DropDefault'; table: string; column: string }
-  // constraints and indexes
-  | { kind: 'AddConstraint'; table: string; name?: string;
-      constraint: 'unique' | 'primaryKey' | 'check' | 'foreignKey'; columns: readonly string[] }
-  | { kind: 'DropConstraint'; table: string; name: string }
-  | { kind: 'CreateIndex' | 'CreateUniqueIndex'; table: string; name?: string; columns: readonly string[] }
-  | { kind: 'DropIndex'; name: string }
-  | { kind: 'RenameIndex'; from: string; to: string }
-  // enums
-  | { kind: 'CreateEnum'; enumName: string; values: readonly string[] }
-  | { kind: 'AddEnumValue' | 'RemoveEnumValue'; enumName: string; value: string }
-  | { kind: 'RenameEnum'; from: string; to: string }
-  | { kind: 'DropEnum'; enumName: string }
-  // data
-  | { kind: 'UpdateRows'; table: string; columns: readonly string[] }
-  | { kind: 'DeleteRows'; table: string }                       // DELETE and TRUNCATE
-  // migration history
-  | { kind: 'EditedMigration'; migration: string; edit: 'modified' | 'removed' }
-  // fail-closed
-  | { kind: 'Unparsable'; sql: string; error: string }
-  | { kind: 'Unrecognized'; sql: string };
-
-// AlterColumnType has no "from": the SQL doesn't contain it. Type rules read it from the used set.
-// RemoveEnumValue comes only from the multi-statement recognizer (ADR-0006, T1.20).
+// A discriminated union on `kind`, one variant per kind (fields: packages/core/src/change.ts):
+//   tables       CreateTable, DropTable, RenameTable
+//   columns      AddColumn, DropColumn, RenameColumn, AlterColumnType (toType only: the old type
+//                comes from the used set), SetNotNull, DropNotNull, SetDefault, DropDefault
+//   constraints  AddConstraint (unique | primaryKey | check | foreignKey), DropConstraint,
+//                CreateIndex, CreateUniqueIndex, DropIndex, RenameIndex
+//   enums        CreateEnum, AddEnumValue, RemoveEnumValue (ADR-0006, T1.20), RenameEnum, DropEnum
+//   data         UpdateRows, DeleteRows (DELETE and TRUNCATE)
+//   history      EditedMigration (modified | removed)
+//   fail-closed  Unparsable, Unrecognized
+type ChangeKind = Change['kind'];
+type ChangeOfKind<K extends ChangeKind> = ChangeByKind[K];   // e.g. the DropColumn variant
 
 type FindingSource =
-  | { kind: 'statement'; migration: string; statementIndex: number }
+  | { kind: 'statement'; migration: string; statementIndex: number }   // 0-based
   | { kind: 'migration'; migration: string }     // EditedMigration, Unparsable (whole file)
   | { kind: 'release' };                         // config (RG-CFG-*), rehearsal (RG-RH-*)
 
+type RuleId = `RG-${'DB' | 'CFG' | 'RH'}-${Digit}${Digit}${Digit}`;   // e.g. 'RG-DB-002'
+
 interface Finding {
-  ruleId: string;                // 'RG-DB-002'
+  ruleId: RuleId;
   severity: FindingSeverity;
   target: string;                // '"User"."name"'
   reason: string;
@@ -134,14 +112,15 @@ interface SourcedChange { change: Change; source: FindingSource }   // what the 
 
 interface RuleContext { usedSet: UsedSet }      // built from base
 
-interface Rule {
-  id: string;
-  appliesTo: readonly Change['kind'][];
-  // The engine adds ruleId and source, so rules don't need to know where a change came from.
-  evaluate(change: Change, ctx: RuleContext): readonly Omit<Finding, 'ruleId' | 'source'>[];
+type RuleHit = Omit<Finding, 'ruleId' | 'source'>;   // the engine adds ruleId and source
+
+interface Rule<K extends ChangeKind = ChangeKind> {
+  id: RuleId;
+  appliesTo: readonly K[];
+  evaluate(change: ChangeOfKind<K>, ctx: RuleContext): readonly RuleHit[];   // [] = no finding
 }
 
-type Analyzer = (base: Snapshot, head: Snapshot) => Finding[];   // analyzeDb, later analyzeConfig
+type Analyzer = (base: Snapshot, head: Snapshot) => readonly Finding[];   // analyzeDb, later analyzeConfig
 
 interface Verdict {
   verdict: Severity;                                  // worst finding, or SAFE when there are none
@@ -149,6 +128,8 @@ interface Verdict {
   counts: { unsafe: number; risky: number };
 }
 ```
+
+All fields are `readonly` in the code: pure functions never mutate their inputs.
 
 ## 4. Base resolution: PR mode vs release mode
 
