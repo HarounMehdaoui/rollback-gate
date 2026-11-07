@@ -13,6 +13,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Monorepo bootstrap (T1.01): pnpm workspace with `core`, `db` and `cli`, TypeScript project
   references, Vitest, ESLint purity and dependency-direction rules, Prettier, and the `ci` workflow,
   with Node 26 and pnpm 12.18.0 pinned.
+- Core domain types (T1.02): the `Change` union (one variant per kind), findings and their sources,
+  rules, analyzer and verdict types, `RuleId` format, and `assertNever` for exhaustive switches.
 
 ### Changed
 - Git workflow: squash-only auto-merge, ruleset on `main` (PR + up-to-date `ci`, no bypass), no
