@@ -37,7 +37,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
     then removed)
 - **Learn:** pnpm workspaces, TS project references (`tsc -b`), ESLint flat config.
 
-### [ ] T1.02 Core domain types
+### [~] T1.02 Core domain types
 - **Goal:** `Severity`, `FindingSeverity`, `Snapshot`, `MigrationFile`, `UsedSet` (+ `UsedTable`,
   `UsedColumn`, `UsedEnum`), `Change` (every kind in ARCHITECTURE §3), `SourcedChange`,
   `FindingSource`, `Finding`, `Rule`, `RuleContext`, `Analyzer`, `Verdict`, `assertNever`.
