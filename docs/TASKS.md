@@ -37,11 +37,11 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
     then removed)
 - **Learn:** pnpm workspaces, TS project references (`tsc -b`), ESLint flat config.
 
-### [ ] T1.02 Core domain types
+### [x] T1.02 Core domain types
 - **Goal:** `Severity`, `FindingSeverity`, `Snapshot`, `MigrationFile`, `UsedSet` (+ `UsedTable`,
   `UsedColumn`, `UsedEnum`), `Change` (every kind in ARCHITECTURE §3), `SourcedChange`,
   `FindingSource`, `Finding`, `Rule`, `RuleContext`, `Analyzer`, `Verdict`, `assertNever`.
-- **Files:** `packages/core/src/{severity,snapshot,used-set,change,finding,rule,analyzer,verdict,assert-never}.ts`, `index.ts`
+- **Files:** `packages/core/src/{severity,snapshot,used-set,change,finding,rule,rule-id,analyzer,verdict,assert-never}.ts`, `index.ts`
 - **Done when:** types compile; a test proves an exhaustive `switch` over `Change['kind']` fails to
   compile if a kind is missing (`@ts-expect-error`).
 - **Learn:** discriminated unions, `never` exhaustiveness checks, `Exclude<>`.
