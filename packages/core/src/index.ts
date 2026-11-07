@@ -1,4 +1,4 @@
-// Kept until cli imports real exports: packages/cli/src/index.test.ts uses it to prove the wiring.
+// Still used by the cli wiring test. Remove once cli imports real exports.
 export const packageName = '@rollbackgate/core';
 
 export { assertNever } from './assert-never.js';

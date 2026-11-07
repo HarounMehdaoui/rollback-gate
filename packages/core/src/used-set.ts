@@ -1,43 +1,34 @@
-// The used set is built in packages/db (T1.06). Its type lives in core because RuleContext needs it
-// and core can't import db (ARCHITECTURE.md §10, rule 8).
+// Built in db (T1.06), but the type lives here because rules need it and core can't import db.
 
-/** One column base's code can read or write (RULES.md §2). */
+/** A column base's code reads or writes. */
 export interface UsedColumn {
-  /** Prisma field name, for messages ("field `name` of model `User`"). */
+  /** Prisma field name, for messages. */
   readonly field: string;
-  /** Prisma type as written in the schema: a scalar (`String`, `Int`, …) or an enum's Prisma name. */
+  /** As written in the schema: `String`, `Int`, or an enum name. */
   readonly prismaType: string;
-  /**
-   * Postgres type, e.g. `varchar(255)`, from `@db.*` or the scalar's default native type.
-   * `null` means it couldn't be resolved: type rules must treat that as unknown (RG-DB-008, UNSAFE).
-   */
+  /** Postgres type, e.g. `varchar(255)`. `null` if we couldn't tell, which RG-DB-008 treats as UNSAFE. */
   readonly nativeType: string | null;
-  /** `String?` in the schema: base may write NULL (RG-DB-009) and can read NULL (RG-DB-010). */
   readonly isOptional: boolean;
   readonly isList: boolean;
-  /**
-   * Raw `@default(...)` expression, e.g. `now()`. Absent = no default. Kept raw on purpose: which
-   * defaults the database applies is answered by the T1.05 lab, and RG-DB-011 classifies from that.
-   */
+  /** Raw `@default(...)` text. Left unparsed until the T1.05 lab tells us who applies each default. */
   readonly default?: string;
-  /** Database name of the column's enum type (`@@map` resolved). Present only for enum columns. */
+  /** Database name of the enum, for enum columns. */
   readonly enumName?: string;
 }
 
-/** One table base's code uses. */
+/** A table base's code uses. */
 export interface UsedTable {
   /** Prisma model name, for messages. */
   readonly model: string;
-  /** Keyed by database column name (`@map` resolved), because migration SQL uses database names. */
+  /** By database column name, since that's what the SQL uses. */
   readonly columns: ReadonlyMap<string, UsedColumn>;
 }
 
-/** One enum base's code uses. */
 export interface UsedEnum {
   readonly values: readonly string[];
 }
 
-/** Everything base's code can touch in the database, keyed by real database names. */
+/** Everything base's code can touch, by database name. */
 export interface UsedSet {
   readonly tables: ReadonlyMap<string, UsedTable>;
   readonly enums: ReadonlyMap<string, UsedEnum>;

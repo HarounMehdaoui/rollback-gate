@@ -3,8 +3,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import { assertNever } from './assert-never.js';
 import type { Change, ChangeKind, ChangeOfKind } from './change.js';
 
-// Most checks here are compile-time: `pnpm test` runs `tsc -b` first, so a type assertion or an
-// unused `@ts-expect-error` that stops holding fails the run (TASKS.md T1.01, decision D7).
+// Most of these checks happen at compile time: `pnpm test` runs `tsc -b` first.
 
 const allKinds = [
   'CreateTable',
@@ -36,7 +35,7 @@ const allKinds = [
   'Unrecognized',
 ] as const;
 
-/** Handles every kind. Compiles only because `change` is `never` by the time it reaches `default`. */
+// Handles every kind, so `change` is `never` in `default`.
 function describeTarget(change: Change): string {
   switch (change.kind) {
     case 'CreateTable':
@@ -78,9 +77,9 @@ function describeTarget(change: Change): string {
   }
 }
 
-/** The same switch with `Unrecognized` forgotten: the `assertNever` call must not compile. */
+// Same switch, but `Unrecognized` is missing.
 function describeTargetMissingOneKind(change: Change): string {
-  // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- incomplete on purpose: it's what this test proves
+  // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- missing a case on purpose
   switch (change.kind) {
     case 'CreateTable':
     case 'DropTable':
@@ -116,7 +115,7 @@ function describeTargetMissingOneKind(change: Change): string {
     case 'Unparsable':
       return change.sql;
     default:
-      // @ts-expect-error -- `Unrecognized` isn't handled, so `change` isn't `never` here
+      // @ts-expect-error -- `change` can still be Unrecognized here
       return assertNever(change);
   }
 }
@@ -126,7 +125,7 @@ function columnOf(change: Change): string | undefined {
     return change.column;
   }
   if (change.kind === 'AddEnumValue') {
-    // @ts-expect-error -- AddEnumValue has no `column`: the compiler knows which fields each kind has
+    // @ts-expect-error -- AddEnumValue has no `column`
     void change.column;
   }
   return undefined;
@@ -158,16 +157,15 @@ describe('Change (discriminated union)', () => {
   });
 
   it('fails to compile when a switch misses a kind', () => {
-    // The proof is the `@ts-expect-error` inside describeTargetMissingOneKind: if that switch ever
-    // became exhaustive, the directive would be unused and `tsc -b` would fail. At runtime the
-    // forgotten kind falls through to assertNever and throws.
+    // The real check is the @ts-expect-error in describeTargetMissingOneKind. Here we just see
+    // what happens at runtime.
     const forgotten: Change = { kind: 'Unrecognized', sql: 'VACUUM' };
 
     expect(() => describeTargetMissingOneKind(forgotten)).toThrow('Unhandled case');
   });
 
   it('ChangeKind contains exactly the kinds of Change', () => {
-    // Equal in both directions: a kind added to Change but not to allKinds fails, and vice versa.
+    // Must match both ways, so a new kind can't be forgotten in the list.
     expectTypeOf<(typeof allKinds)[number]>().toEqualTypeOf<ChangeKind>();
     expect(new Set(allKinds).size).toBe(allKinds.length);
   });
@@ -180,8 +178,7 @@ describe('Change (discriminated union)', () => {
     }>();
   });
 
-  // added: a variant shared by several kinds (`kind: 'SetNotNull' | 'DropNotNull'`) would hand a
-  // SetNotNull rule a change whose kind could be DropNotNull. This catches it for every kind at once.
+  // Catches a shared variant like `kind: 'SetNotNull' | 'DropNotNull'`.
   it('every kind has its own variant', () => {
     type ImpreciseKinds = {
       [K in ChangeKind]: [ChangeOfKind<K>['kind']] extends [K] ? never : K;

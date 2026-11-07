@@ -34,11 +34,10 @@ describe('Finding', () => {
     expectTypeOf<{ kind: 'statement'; migration: string }>().not.toExtend<FindingSource>();
   });
 
-  // added: a release-level finding (config, rehearsal) has no migration to point at. TypeScript is
-  // structural, so only a fresh object literal gets this check ("excess property check").
+  // Only checked on object literals, so the test uses one.
   it('rejects a migration name written on a release source', () => {
     const sources: FindingSource[] = [
-      // @ts-expect-error -- `migration` doesn't exist on a release source
+      // @ts-expect-error -- release sources have no migration
       { kind: 'release', migration: '20261107_drop_name' },
     ];
 

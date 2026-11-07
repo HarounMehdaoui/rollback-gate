@@ -1,13 +1,8 @@
-// One normalized effect of a migration statement. Rules only ever see these, never SQL or the AST
-// (ARCHITECTURE.md §10, rule 3). Which rule reads which kind: RULES.md §4.
+// What a migration statement does, in a form rules can read. Rules never see raw SQL.
 
-/**
- * Merges an intersection into one plain object type, so each variant is *equal* to its flat shape
- * (type tests compare against it). Error messages may still print the `Flatten<…>` alias.
- */
+// Turns `A & B` into one plain object type, so tests can compare variants to a flat shape.
 type Flatten<T> = { [P in keyof T]: T[P] };
 
-/** One variant of `Change`: a fixed `kind` plus its fields. */
 type Variant<K extends string, Fields = unknown> = Flatten<{ readonly kind: K } & Fields>;
 
 type OnTable = { readonly table: string };
@@ -15,13 +10,11 @@ type OnColumn = { readonly table: string; readonly column: string };
 type Renamed = { readonly from: string; readonly to: string };
 type OnEnum = { readonly enumName: string };
 
-/** The constraint types `ADD CONSTRAINT` can introduce. */
 export type ConstraintType = 'unique' | 'primaryKey' | 'check' | 'foreignKey';
 
 /**
- * A discriminated union on `kind`: check `kind` and TypeScript knows which fields exist.
- * Every kind has its own variant, even when fields repeat, so a rule for `SetNotNull` never
- * receives a type that claims it could also be `DropNotNull`.
+ * Check `kind` and TypeScript knows which fields you have. Each kind gets its own variant, even
+ * when the fields are the same, so a SetNotNull rule never gets something that might be DropNotNull.
  */
 export type Change =
   // tables
@@ -32,7 +25,7 @@ export type Change =
   | Variant<'AddColumn', OnColumn & { readonly isNullable: boolean; readonly hasDefault: boolean }>
   | Variant<'DropColumn', OnColumn>
   | Variant<'RenameColumn', OnTable & Renamed>
-  // No `fromType`: the SQL only states the new type. Type rules read the old one from the used set.
+  // No old type here: the SQL doesn't say it. Rules get it from the used set.
   | Variant<'AlterColumnType', OnColumn & { readonly toType: string; readonly hasUsing: boolean }>
   | Variant<'SetNotNull', OnColumn>
   | Variant<'DropNotNull', OnColumn>
@@ -43,7 +36,7 @@ export type Change =
       'AddConstraint',
       OnTable & {
         readonly constraint: ConstraintType;
-        /** Empty when the columns can't be read from the statement (e.g. some CHECKs). */
+        /** Can be empty, e.g. for some CHECKs. */
         readonly columns: readonly string[];
         readonly name?: string;
       }
@@ -57,13 +50,13 @@ export type Change =
       'CreateUniqueIndex',
       OnTable & { readonly columns: readonly string[]; readonly name?: string }
     >
-  // Prisma drops an index by name only, so there is no table here.
+  // Prisma drops indexes by name only, so no table.
   | Variant<'DropIndex', { readonly name: string }>
   | Variant<'RenameIndex', Renamed>
   // enums
   | Variant<'CreateEnum', OnEnum & { readonly values: readonly string[] }>
   | Variant<'AddEnumValue', OnEnum & { readonly value: string }>
-  // Produced only by the multi-statement recognizer (ADR-0006, T1.20).
+  // Only produced by the enum recreate recognizer (T1.20).
   | Variant<'RemoveEnumValue', OnEnum & { readonly value: string }>
   | Variant<'RenameEnum', Renamed>
   | Variant<'DropEnum', OnEnum>
@@ -80,15 +73,14 @@ export type Change =
   | Variant<'Unparsable', { readonly sql: string; readonly error: string }>
   | Variant<'Unrecognized', { readonly sql: string }>;
 
-/** Every `kind` string. Derived, so adding a variant to `Change` updates it automatically. */
+/** All the kind names. Derived, so it can't get out of sync. */
 export type ChangeKind = Change['kind'];
 
-/** Each kind mapped to its variant: `ChangeByKind['DropColumn']` is the DropColumn shape. */
+/** Kind name → its variant. */
 export type ChangeByKind = { [C in Change as C['kind']]: C };
 
 /**
- * The variant(s) for the given kind(s), e.g. `ChangeOfKind<'DropColumn'>`.
- * A lookup, not `Extract<>`: TypeScript can't tell how a type parameter varies inside a conditional
- * type, and would then refuse to put a `Rule<'DropColumn'>` in a `Rule[]`.
+ * The variant for a kind, e.g. `ChangeOfKind<'DropColumn'>`.
+ * A lookup instead of `Extract<>`, because with `Extract` a `Rule<'DropColumn'>` doesn't fit in a `Rule[]`.
  */
 export type ChangeOfKind<K extends ChangeKind> = ChangeByKind[K];

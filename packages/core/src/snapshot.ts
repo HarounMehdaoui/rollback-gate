@@ -1,21 +1,16 @@
-/** One migration as read from disk or git by the cli. */
 export interface MigrationFile {
-  /** Migration folder name, e.g. `20261107120000_add_user`. Prisma's timestamp prefix gives apply order. */
+  /** Folder name, e.g. `20261107120000_add_user`. The timestamp gives the order. */
   readonly name: string;
   readonly sql: string;
-  /** Hex sha256 of `sql`. Lets the history diff spot an edited migration (RG-DB-020) cheaply. */
+  /** Hash of `sql`, used to spot edited migrations (RG-DB-020). */
   readonly sha256: string;
 }
 
-/**
- * Everything the pure analyzers need about one release (base or head). The cli builds it; core and
- * db only read it. Phase 2 adds the env contract.
- */
+/** One release (base or head), as loaded by the cli. The env contract comes in Phase 2. */
 export interface Snapshot {
-  /** Git ref or image digest the snapshot was built from, for messages and the attestation. */
+  /** Git ref or image digest. */
   readonly ref: string;
-  /** Raw `schema.prisma` text; db parses it (T1.06). */
   readonly prismaSchema: string;
-  /** In apply order: the history diff and the normalizer depend on it. */
+  /** In apply order. */
   readonly migrations: readonly MigrationFile[];
 }

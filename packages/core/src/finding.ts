@@ -2,32 +2,28 @@ import type { Change } from './change.js';
 import type { RuleId } from './rule-id.js';
 import type { FindingSeverity } from './severity.js';
 
-/** Where a finding comes from (ARCHITECTURE.md §3). */
+/** Where a finding comes from. */
 export type FindingSource =
-  /** One statement of a migration. `statementIndex` is 0-based; the cli may print it 1-based. */
+  /** A statement in a migration. The index starts at 0. */
   | { readonly kind: 'statement'; readonly migration: string; readonly statementIndex: number }
-  /** A whole migration: an edited or removed one (RG-DB-020), or a file that didn't parse (RG-DB-021). */
+  /** A whole migration: edited, removed, or unparsable. */
   | { readonly kind: 'migration'; readonly migration: string }
-  /** The release as a whole: config contract (RG-CFG-*) and rehearsal (RG-RH-*). */
+  /** The release as a whole: config and rehearsal findings. */
   | { readonly kind: 'release' };
 
-/** One problem a rule found. Rules emit only RISKY or UNSAFE findings (RULES.md §3). */
 export interface Finding {
   readonly ruleId: RuleId;
   readonly severity: FindingSeverity;
-  /** What it's about, in SQL quoting, e.g. `"User"."name"`. Compared by the scenario runner. */
+  /** e.g. `"User"."name"`. The scenario tests compare this. */
   readonly target: string;
   /** What breaks in base after a rollback. */
   readonly reason: string;
-  /** A concrete next action. */
+  /** What to do about it. */
   readonly fix: string;
   readonly source: FindingSource;
 }
 
-/**
- * A change with the place it came from. The normalizer returns these, and the rule engine copies
- * `source` into each finding, so rules never deal with locations.
- */
+/** A change plus where it came from. The engine copies `source` into findings, so rules don't have to. */
 export interface SourcedChange {
   readonly change: Change;
   readonly source: FindingSource;

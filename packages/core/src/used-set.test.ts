@@ -25,8 +25,7 @@ describe('UsedColumn', () => {
     }>().not.toExtend<UsedColumn>();
   });
 
-  // added: with exactOptionalPropertyTypes, "no default" means the key is absent, never
-  // `default: undefined`. One way to say it means one way for rules to check it.
+  // "No default" means the key is missing. One way to say it, one way to check it.
   it('rejects `default: undefined`; a missing default is an absent key', () => {
     expectTypeOf<{
       field: string;
@@ -47,7 +46,6 @@ describe('UsedSet', () => {
     expect(usedSet.tables.get('User')).toBeUndefined();
   });
 
-  // added: pure functions don't mutate their inputs (CONVENTIONS.md); the type makes that a rule.
   it('cannot be modified by a rule', () => {
     expectTypeOf<UsedSet['tables']>().not.toHaveProperty('set');
     expectTypeOf<UsedTable['columns']>().not.toHaveProperty('delete');

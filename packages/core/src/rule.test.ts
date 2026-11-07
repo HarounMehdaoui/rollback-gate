@@ -5,7 +5,7 @@ import type { Rule, RuleContext, RuleHit } from './rule.js';
 import type { RuleId } from './rule-id.js';
 import type { UsedTable } from './used-set.js';
 
-// A test double, not the real RG-DB-002 (T1.10): just enough behaviour to exercise the Rule type.
+// A fake rule for testing the type. The real RG-DB-002 comes in T1.10.
 const sampleDropColumnRule: Rule<'DropColumn'> = {
   id: 'RG-DB-999',
   appliesTo: ['DropColumn'],
@@ -55,7 +55,7 @@ describe('Rule', () => {
   it('fits in a list of rules of different kinds', () => {
     const rules: readonly Rule[] = [sampleDropColumnRule];
 
-    // Seen through the list, a rule accepts any Change: the engine must check appliesTo (T1.10).
+    // From the list, a rule seems to accept any Change. The engine has to check appliesTo.
     expectTypeOf<Parameters<(typeof rules)[number]['evaluate']>[0]>().toEqualTypeOf<Change>();
     expect(rules).toHaveLength(1);
   });
