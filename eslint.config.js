@@ -20,7 +20,7 @@ const builtinImportBans = nodeBuiltins.flatMap((name) => [
 ]);
 
 export default defineConfig(
-  globalIgnores(['**/dist/', '**/coverage/']),
+  globalIgnores(['**/dist/', '**/dist-test/', '**/coverage/']),
 
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,

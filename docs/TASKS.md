@@ -53,12 +53,12 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
   source order), and sources of each kind (statement, migration, release).
 - **Learn:** writing tests first; pure functions.
 
-### [ ] T1.04 Snapshot loader + scenario runner
+### [x] T1.04 Snapshot loader + scenario runner
 - **Goal:** `loadSnapshotFromDir(dir) → Snapshot` (reads `prisma/schema.prisma` and
   `prisma/migrations/*/migration.sql`, computes sha256), and one Vitest file that discovers
   `scenarios/*/` and compares results with `expected.json`.
 - **Files:** `packages/cli/src/load-snapshot-dir.ts` + test, `scenarios/_smoke/{base,head,expected.json}`,
-  `packages/cli/test/scenarios.test.ts`
+  `packages/cli/test/{scenarios.test,scenario-files,scenario-files.test}.ts`, `packages/cli/test/tsconfig.json`
 - **Done when:** the loader is tested on `_smoke`; the runner discovers scenarios and marks them
   `todo` until T1.11 gives it `analyzeDb`.
 - **Learn:** data-driven tests (`test.each`); keeping I/O at the edge (the loader is the only part
@@ -67,7 +67,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 ### [ ] T1.05 Prisma behaviour lab + parser ADRs
 - **Goal:** replace guesses with evidence before any rule is built.
   - **Prisma behaviour lab:** a throwaway Prisma project under `spikes/prisma-lab/` against Postgres
-    in Docker. Answer all 11 ⚠️ items in `docs/RULES.md` §6 **by experiment**: generate migrations with
+    in Docker. Answer all 12 ⚠️ items in `docs/RULES.md` §6 **by experiment**: generate migrations with
     `prisma migrate dev`, run queries, read the query log and error messages. Record each answer and
     its evidence in §6, then adjust the affected rules and remove their ⚠️ markers.
   - **ADR-0004 Prisma schema parser:** try ≥ 2 candidates on a schema with `@map`, `@@map`,
