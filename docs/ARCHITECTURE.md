@@ -23,7 +23,7 @@
 | Package | Pure? | Responsibility | Phase |
 |---|---|---|---|
 | `packages/core` | yes | Domain types (`Snapshot`, `Change`, `UsedSet`, `Finding`, `Severity`, `Verdict`), `Rule` and `Analyzer` interfaces, verdict engine | 1 |
-| `packages/db` | yes | Builds the `UsedSet` from Prisma schema; SQL → AST → `Change[]`; DB rules; `analyzeDb` | 1 |
+| `packages/db` | yes | Builds the `UsedSet` from Prisma schema (`@prisma/get-dmmf`, ADR-0004); SQL → AST (`libpg-query`, ADR-0005) → `Change[]`; DB rules; `analyzeDb` | 1 |
 | `packages/config` | yes | Env contract extraction + config rules | 2 |
 | `packages/rehearsal` | no | Temp Postgres, boot images, smoke requests | 2 |
 | `packages/attest` | no | Build in-toto statement, call cosign, verify | 4 |

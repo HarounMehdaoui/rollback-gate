@@ -22,6 +22,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Prisma behaviour lab results (T1.05a): every Prisma assumption in the rules catalogue checked by
   experiment against Prisma 7.10.1 and Postgres 18.6; new rule RG-DB-023 (unique index dropped that
   base relies on, RISKY).
+- Parser decisions (T1.05b): ADR-0004 (`@prisma/get-dmmf` for Prisma schemas) and ADR-0005
+  (`libpg-query` for migration SQL), each chosen by running the candidates on our own cases.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
