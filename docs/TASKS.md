@@ -46,7 +46,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
   compile if a kind is missing (`@ts-expect-error`).
 - **Learn:** discriminated unions, `never` exhaustiveness checks, `Exclude<>`.
 
-### [~] T1.03 Verdict engine
+### [x] T1.03 Verdict engine
 - **Goal:** `computeVerdict(findings) → Verdict` (worst wins, no findings = SAFE, counts, stable sort).
 - **Files:** `packages/core/src/verdict-engine.ts` + `.test.ts`
 - **Done when:** tests cover the empty list (SAFE), mixed severities, sort order (UNSAFE first, then

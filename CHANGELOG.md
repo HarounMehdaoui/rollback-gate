@@ -15,6 +15,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   with Node 26 and pnpm 12.18.0 pinned.
 - Core domain types (T1.02): the `Change` union (one variant per kind), findings and their sources,
   rules, analyzer and verdict types, `RuleId` format, and `assertNever` for exhaustive switches.
+- Verdict engine (T1.03): `computeVerdict` (worst severity wins, no findings = SAFE) with counts and
+  a fixed finding order, so the same findings always give the same report.
 
 ### Changed
 - Git workflow: squash-only auto-merge, ruleset on `main` (PR + up-to-date `ci`, no bypass), no
