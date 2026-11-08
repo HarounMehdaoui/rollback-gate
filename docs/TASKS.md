@@ -91,19 +91,26 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 - **Learn:** comparing libraries on your own test cases instead of their READMEs.
 
 ### [ ] T1.06 Prisma snapshot → UsedSet
-- **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`.
-  Each column records Prisma scalar, native type (`@db.*` or the scalar's default), optionality,
-  list, default and enum (RULES.md §2). Also base's unique indexes by name (`map:` or
-  Prisma's default `<Table>_<columns>_key`) with their columns, for RG-DB-023.
+- **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`,
+  read with `@prisma/get-dmmf` (ADR-0004). Each column records Prisma scalar, native type (`@db.*` or
+  the scalar's default), optionality, list, default (rendered back to text) and enum; enum values by
+  database name (RULES.md §2). Also base's unique indexes by name, for RG-DB-023: the `map:` value, or
+  Prisma's default computed from database names (ADR-0004, "Consequences").
+- **Fail-closed:** an invalid schema, or one with no models or no PostgreSQL datasource, is an error,
+  never an empty used set (ADR-0004).
 - **Files:** `packages/db/src/prisma/{parse-schema,used-set}.ts` + tests
 - **Done when:** tests cover `@map`, `@@map`, `@ignore`, `@@ignore`, relation fields (no column),
-  `@id`, enums (incl. `@@map` on enums), `@db.*` types and default native types.
+  `@id`, enums (incl. `@@map` on enums and `@map` on values), `@db.*` types and default native types,
+  default index names (including one cut at 63 characters), and the invalid and empty schemas.
 - **Learn:** the difference between Prisma model names and database names.
 
 ### [ ] T1.07 SQL parser wrapper
-- **Goal:** `parseSql(sql) → { ok: true, statements } | { ok: false, error }` around libpg-query.
+- **Goal:** `parseSql(sql) → { ok: true, statements } | { ok: false, error }` around libpg-query's
+  `parseSync` (ADR-0005), plus the one-time async initialization the cli awaits before analyzing.
+  Each statement keeps its position in the file.
 - **Files:** `packages/db/src/sql/parse-sql.ts` + test
-- **Done when:** valid multi-statement SQL parses; invalid SQL returns an error, never throws.
+- **Done when:** valid multi-statement SQL parses (with positions); invalid SQL returns an error with
+  its position, never throws; parsing before initialization is a clear tool error.
 - **Learn:** use the API recorded in ADR-0005; don't guess.
 
 ### [ ] T1.08 Migration history diff

@@ -277,7 +277,8 @@ finding, except a unique index base's `upsert` relies on (RG-DB-023).
 - **Change:** `DropIndex`, or `DropConstraint` of a unique constraint
 - **Condition:** the dropped name is one of base's unique indexes (from `@unique`, `@@unique` or `@id`
   on a used table). `DROP INDEX` carries only the name, so this needs the used set to record base's
-  unique indexes by name: Prisma's default is `<Table>_<columns>_key`, or the `map:` value (T1.06).
+  unique indexes by name: the `map:` value, or Prisma's default `<table>_<columns>_key` built from
+  database names and cut to fit Postgres's 63-character limit (ADR-0004, T1.06).
 - **Severity:** RISKY (owner's decision)
 - **Why (possible):** Prisma's `upsert` is a native `INSERT … ON CONFLICT (<columns>)`, which needs that
   unique index (§6 row 6). Base breaks only on the code paths that `upsert` on those columns; reads and
