@@ -1,0 +1,9 @@
+create-schema-and-tables.sql: OK v180004 10 stmts: CreateSchemaStmt@16+36 | CreateEnumStmt@68+54 | CreateStmt@139+424 | CreateStmt@580+129 | CreateStmt@726+104 | IndexStmt@847+57 | IndexStmt@921+58 | IndexStmt@996+58 | IndexStmt@1071+78 | AlterTableStmt[AT_AddConstraint]@1168+143
+do-block.sql: OK v180004 2 stmts: DoStmt@64+85 | AlterTableStmt[AT_ColumnDefault]@151+62
+e1-field-rename.sql: OK v180004 1 stmts: AlterTableStmt[AT_DropColumn,AT_AddColumn]@15+78
+e10-unique-and-renames.sql: OK v180004 4 stmts: DropStmt@14+27 | RenameStmt@58+67 | RenameStmt@148+85 | RenameStmt@251+61
+e1b-model-rename.sql: OK v180004 2 stmts: DropStmt@14+17 | CreateStmt@49+128
+e8-enum-remove-value.sql: OK v180004 9 stmts: TransactionStmt@14+5 | CreateEnumStmt@21+48 | AlterTableStmt[AT_ColumnDefault]@71+51 | AlterTableStmt[AT_AlterColumnType]@124+87 | RenameStmt@213+38 | RenameStmt@253+38 | DropStmt@293+20 | AlterTableStmt[AT_ColumnDefault]@315+57 | TransactionStmt@374+6
+init-with-enum-default.sql: OK v180004 3 stmts: CreateEnumStmt@14+44 | CreateStmt@76+468 | IndexStmt@562+55
+invalid.sql: ERROR SqlError "syntax error at or near "TEXT"" cursor=66
+pg17-set-expression.sql: OK v180004 1 stmts: AlterTableStmt[AT_SetExpression]@0+80

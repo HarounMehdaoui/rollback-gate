@@ -1,0 +1,62 @@
+{
+ "type": "model",
+ "name": "User",
+ "properties": [
+  {
+   "type": "field",
+   "name": "id",
+   "fieldType": "Int",
+   "array": false,
+   "optional": false,
+   "attributes": [
+    {
+     "type": "attribute",
+     "name": "id",
+     "kind": "field",
+     "args": [
+      {
+       "type": "attributeArgument",
+       "value": {
+        "type": "keyValue",
+        "key": "map",
+        "value": "\"users_pk\""
+       }
+      }
+     ]
+    },
+    {
+     "type": "attribute",
+     "name": "default",
+     "kind": "field",
+     "args": [
+      {
+       "type": "attributeArgument",
+       "value": {
+        "type": "function",
+        "name": "autoincrement"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "field",
+   "name": "email",
+   "fieldType": "String",
+   "array": false,
+   "optional": false,
+   "attributes": [
+    {
+     "type": "attribute",
+     "name": "unique",
+     "kind": "field"
+    }
+   ]
+  },
+  {
+   "type": "field",
+   "name": "handle",
+   "fieldType": "String",
+broken schema: NO ERROR
+

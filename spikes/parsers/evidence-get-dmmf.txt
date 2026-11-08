@@ -1,0 +1,19 @@
+model User dbName=users primaryKey=null
+  id kind=scalar type=Int dbName=- required=true list=false native=null default={"name":"autoincrement","args":[]} unique=false relationFrom=null
+  email kind=scalar type=String dbName=- required=true list=false native=null default=null unique=true relationFrom=null
+  handle kind=scalar type=String dbName=- required=true list=false native=null default=null unique=true relationFrom=null
+  fullName kind=scalar type=String dbName=full_name required=true list=false native=["VarChar",["255"]] default=null unique=false relationFrom=null
+  role kind=enum type=Role dbName=- required=true list=false native=null default="USER" unique=false relationFrom=null
+  createdAt kind=scalar type=DateTime dbName=- required=true list=false native=null default={"name":"now","args":[]} unique=false relationFrom=null
+  status kind=scalar type=String dbName=- required=true list=false native=null default="draft" unique=false relationFrom=null
+  token kind=scalar type=String dbName=- required=true list=false native=null default={"name":"dbgenerated","args":["gen_random_uuid()::text"]} unique=false relationFrom=null
+  posts kind=object type=Post dbName=- required=true list=true native=null default=null unique=false relationFrom=[]
+  uniqueIndexes=[{"name":null,"fields":["fullName","role"]}] uniqueFields=[["fullName","role"]]
+model Post dbName=null primaryKey=null
+  id kind=scalar type=Int dbName=- required=true list=false native=null default={"name":"autoincrement","args":[]} unique=false relationFrom=null
+  authorId kind=scalar type=Int dbName=author_id required=true list=false native=null default=null unique=false relationFrom=null
+  author kind=object type=User dbName=- required=true list=false native=null default=null unique=false relationFrom=["authorId"]
+  uniqueIndexes=[] uniqueFields=[]
+enum Role dbName=user_role values=[{"name":"USER","dbName":null},{"name":"ADMIN","dbName":"admin_role"}]
+indexes=[{"model":"User","type":"id","dbName":"users_pk","fields":["id"]},{"model":"User","type":"unique","fields":["email"]},{"model":"User","type":"unique","dbName":"users_handle_uq","fields":["handle"]},{"model":"User","type":"normal","fields":["createdAt"]},{"model":"User","type":"unique","fields":["fullName","role"]},{"model":"Post","type":"id","fields":["id"]}]
+broken schema: returns error: type=wasm-error {"error_code":"P1012","message":"\u001b[1;91merror\u001b[0m: \u001b[1mType \"Strin\" is neither a built-in type, nor refers to another model, composite type, or enum.\u001b[0m\n  \u001b[1;94m-->\u001b[0m  \u001b[4mschema.prisma:35\u001b[0m\n\u001b[1;94m   | \u001b[0m\n\u001b[1;94m34 | \u001b[0mmodel Post {\n\u001b[1;94m35 | \u001b[0m  oops \u001b[1;91mStrin\u001b[0m\n\u001b[1;94m   | \u001b[0m\n\nValidation Error Count: 1"}
