@@ -273,12 +273,12 @@ finding, except a unique index base's `upsert` relies on (RG-DB-023).
 - **Fix:** add the relation to the schema and make the code respect it one release before adding the FK.
 - **Phase:** 1
 
-#### RG-DB-023 · Unique index dropped that base relies on (**proposed**, awaiting the owner)
+#### RG-DB-023 · Unique index dropped that base relies on
 - **Change:** `DropIndex`, or `DropConstraint` of a unique constraint
 - **Condition:** the dropped name is one of base's unique indexes (from `@unique`, `@@unique` or `@id`
   on a used table). `DROP INDEX` carries only the name, so this needs the used set to record base's
   unique indexes by name: Prisma's default is `<Table>_<columns>_key`, or the `map:` value (T1.06).
-- **Severity:** RISKY (**proposed**)
+- **Severity:** RISKY (owner's decision)
 - **Why (possible):** Prisma's `upsert` is a native `INSERT … ON CONFLICT (<columns>)`, which needs that
   unique index (§6 row 6). Base breaks only on the code paths that `upsert` on those columns; reads and
   plain writes keep working.
@@ -396,7 +396,7 @@ them keeps them from becoming `Unrecognized` (RG-DB-022) noise.
 |---|---|---|
 | `CreateTable` | `CREATE TABLE` | base doesn't know the table |
 | `CreateIndex` | `CREATE INDEX` (non-unique) | doesn't change what base can read or write |
-| `DropIndex`, `DropConstraint` | `DROP INDEX`, `ALTER TABLE … DROP CONSTRAINT` | relaxes rules; exception: a unique index base relies on (RG-DB-023, proposed) |
+| `DropIndex`, `DropConstraint` | `DROP INDEX`, `ALTER TABLE … DROP CONSTRAINT` | relaxes rules; exception: a unique index base relies on (RG-DB-023) |
 | `RenameIndex` | `ALTER INDEX … RENAME`, `ALTER TABLE … RENAME CONSTRAINT` (index, primary-key and foreign-key renames, §6 row 10) | base never names indexes |
 | `SetDefault` | `ALTER COLUMN … SET DEFAULT` | base inserts still succeed |
 | `CreateEnum`, `DropEnum` | `CREATE TYPE … AS ENUM`, `DROP TYPE` | base can't use a new type. A used enum can't be dropped while a used column still has that type, so that case is already caught by the column rules |
@@ -473,7 +473,7 @@ Rerun the lab when the supported Prisma version changes.
 | 3 | Reading a `bigint` above 2³¹ into an `Int` field: error or overflow? | RG-DB-007 | **Neither**: it returns a JS number (5000000000 came back exact). Exact only up to 2⁵³. | `findUnique` → `{"small":5000000000}` |
 | 4 | Reading NULL into a required field: error or `null`? | RG-DB-010 | **`null`, no error** | `findUnique` → `{"label":null}` |
 | 5 | Which `@default`s does the database apply, and which does Prisma send? | RG-DB-011 | Database: only `autoincrement()` and `dbgenerated()`. Prisma sends `now()`, literals, enum values, `uuid()`, `cuid()`, `@updatedAt` itself (the DDL still has `DEFAULT` clauses for `now()`, literals and enums). | `INSERT INTO "public"."Item" ("small","label","email","role","createdAt","status","uuid","cuid","updatedAt") VALUES (…)`: no `id`, no `dbgen` |
-| 6 | Does `upsert` rely on a database unique constraint? | RG-DB-023 (proposed) | **Yes**: native `INSERT … ON CONFLICT ("email") DO UPDATE`. With the unique index dropped, base's `upsert` fails. | `P2039 … Code: 42P10. there is no unique or exclusion constraint matching the ON CONFLICT specification` |
+| 6 | Does `upsert` rely on a database unique constraint? | RG-DB-023 | **Yes**: native `INSERT … ON CONFLICT ("email") DO UPDATE`. With the unique index dropped, base's `upsert` fails. | `P2039 … Code: 42P10. there is no unique or exclusion constraint matching the ON CONFLICT specification` |
 | 7 | Does reading an unknown enum value raise an error? | RG-DB-015 | **Yes** | `P2023 Value 'OWNER' not found in enum 'Role'` |
 | 8 | Exact SQL to remove an enum value? | RG-DB-016, ADR-0006 | `BEGIN; CREATE TYPE "Role_new" …; ALTER COLUMN "role" DROP DEFAULT; ALTER COLUMN "role" TYPE "Role_new" USING ("role"::text::"Role_new"); ALTER TYPE "Role" RENAME TO "Role_old"; ALTER TYPE "Role_new" RENAME TO "Role"; DROP TYPE "Role_old"; ALTER COLUMN "role" SET DEFAULT 'USER'; COMMIT;` | `migrate diff` output |
 | 9 | Are enum parameters cast by type name? | RG-DB-017 | **Yes**, schema-qualified | `WHERE "public"."Item"."role" = CAST($1::text AS "public"."Role")` |
