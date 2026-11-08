@@ -355,6 +355,8 @@ writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
 - **Reason:** environments that already applied the old version now differ from what head's history
   says, so neither base's nor head's schema can be trusted to match the database.
 - **Fix:** never edit an applied migration. Revert the edit and add a new migration instead.
+- **Note:** the hash is taken after CRLF → LF, so a change of line endings alone isn't an edit.
+  ⚠️ verify that Prisma's own checksum agrees (§6 row 12).
 - **Phase:** 1
 
 #### RG-DB-021 · Unparsable SQL
@@ -465,3 +467,4 @@ Lab versions: Prisma `…` · Postgres `…` · Node `…`
 | 9 | Are enum parameters cast by type name in queries? | RG-DB-017 | | |
 | 10 | What does Prisma emit for dropping a unique index, and when does it emit `ALTER INDEX … RENAME` or `RENAME CONSTRAINT`? | no-rule table | | |
 | 11 | Does `@ignore` keep the column (no DROP generated), and is it allowed on a nullable field without a default? | §5 | | |
+| 12 | Does Prisma's own migration checksum ignore line endings (CRLF vs LF)? We hash after CRLF → LF; if Prisma doesn't, it could flag a file we treat as unchanged | RG-DB-020 | | |

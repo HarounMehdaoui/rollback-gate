@@ -144,7 +144,10 @@ running. See [ADR-0001](adr/0001-release-mode-against-deployed-base.md).
 ## 5. Phase 1 data flow (`check`)
 
 1. **Load (cli):** read base and head snapshots from git (`git show <ref>:path`) or from a directory
-   (the working tree, or a scenario fixture).
+   (the working tree, or a scenario fixture). Migrations are sorted by folder name (Prisma's apply
+   order) and hashed after CRLF → LF, so a Windows checkout doesn't look edited. A missing
+   `schema.prisma`, or a migration folder without `migration.sql`, is a tool error (exit `2`); a
+   missing `migrations/` folder means no migrations; files like `migration_lock.toml` are ignored.
 2. **Analyze (db, pure):** `analyzeDb(base, head)` runs steps 3–7 and returns `Finding[]`.
 3. **Used set:** parse base `schema.prisma`; collect tables, columns and enums not marked
    `@ignore`/`@@ignore`; resolve `@map`/`@@map` to real names; record each column's type (Prisma
