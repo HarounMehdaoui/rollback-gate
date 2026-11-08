@@ -47,7 +47,10 @@ fields) can change freely. That is why the backfill exception (RG-DB-018) works.
 
 - **Rules emit only `RISKY` or `UNSAFE` findings.** A change that doesn't hurt base produces **no
   finding**. No findings means the verdict is `SAFE`.
-- **Verdict = the worst finding.** Findings are sorted by severity (UNSAFE first), then by source order.
+- **Verdict = the worst finding.** Findings are sorted so the same findings always give the same
+  report: UNSAFE first; then migrations in apply order (by name), with whole-migration findings
+  before that migration's statements, statements by index, and release-wide findings last; then by
+  rule ID and target. Duplicates are kept and counted.
 - **Exit codes:** `0` = SAFE or RISKY, `1` = UNSAFE, `2` = tool error (crash, bad arguments, git
   failure). An unparsable migration is a *finding* (UNSAFE, exit `1`), not a tool error.
 - **Fail-closed:** unparsable SQL → UNSAFE. An unknown type change → UNSAFE. SQL that parses but
