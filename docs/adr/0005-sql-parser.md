@@ -1,6 +1,6 @@
 # ADR-0005: Parse migration SQL with Postgres's own parser (`libpg-query`)
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-11-08
 
 ## Context

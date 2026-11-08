@@ -1,6 +1,6 @@
 # ADR-0004: Read Prisma schemas with Prisma's own engine (`@prisma/get-dmmf`)
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-11-08
 
 ## Context

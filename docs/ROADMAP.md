@@ -13,8 +13,8 @@ Each phase ends with a git tag and a short demo you could show a reviewer.
 
 ## Open decisions (each becomes an ADR)
 
-- [ ] Prisma schema parser — proposed: `@prisma/get-dmmf` (ADR-0004), awaiting the owner
-- [ ] SQL parser — proposed: `libpg-query`, WASM, Postgres 18 grammar (ADR-0005), awaiting the owner
+- [x] Prisma schema parser: `@prisma/get-dmmf` (ADR-0004)
+- [x] SQL parser: `libpg-query`, WASM, Postgres 18 grammar (ADR-0005)
 - [ ] How multi-statement patterns (Prisma's enum recreate) are recognized — Phase 1, T1.20, ADR-0006
 - [x] Severity principle: certain → UNSAFE, possible → RISKY (`docs/RULES.md` §3)
 - [x] Answer the "verify" items in `docs/RULES.md` by experiment — T1.05a (Prisma 7.10.1, Postgres 18.6)
