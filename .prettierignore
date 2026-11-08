@@ -1,6 +1,9 @@
 # Generated
 pnpm-lock.yaml
 
+# Throwaway experiments, never merged
+spikes/
+
 # Docs are hand-formatted: Prettier would re-pad every Markdown table and turn small doc edits
 # into large diffs.
 *.md
