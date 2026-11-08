@@ -1,0 +1,6 @@
+e7 ERROR: PrismaClientKnownRequestError P2023
+
+Invalid `prisma.item.findUnique()` invocation:
+
+
+Value 'OWNER' not found in enum 'Role'

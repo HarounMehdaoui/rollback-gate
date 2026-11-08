@@ -1,0 +1,18 @@
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    Int    @id(map: "User_pk_old")
+  email String @unique
+  name  String
+  posts Post[]
+
+  @@index([name], map: "User_name_old_idx")
+}
+
+model Post {
+  id       Int  @id
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id], map: "Post_author_old_fkey")
+}

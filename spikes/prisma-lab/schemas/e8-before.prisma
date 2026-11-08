@@ -1,0 +1,14 @@
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+  GUEST
+}
+
+model User {
+  id   Int  @id
+  role Role @default(USER)
+}

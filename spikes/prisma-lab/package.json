@@ -1,0 +1,13 @@
+{
+  "name": "prisma-lab",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway T1.05a experiments: answers RULES.md §6 by running Prisma against Postgres.",
+  "devDependencies": {
+    "prisma": "7.10.1"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1"
+  }
+}
