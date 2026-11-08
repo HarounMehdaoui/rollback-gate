@@ -77,7 +77,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
   Prisma is confirmed on Node 26 (or the fallback to Node 24 is recorded).
 - **Learn:** how to run a technical spike, and why evidence beats documentation for edge-case behaviour.
 
-### [ ] T1.05b Spike + ADRs: Prisma schema parser and SQL parser
+### [~] T1.05b Spike + ADRs: Prisma schema parser and SQL parser
 - **Goal:** choose both parsers with evidence.
   - **ADR-0004 Prisma schema parser:** try ≥ 2 candidates on a schema with `@map`, `@@map`,
     `@ignore`, `@@ignore`, `@db.*` native types, `@default`s, enums and relations.
