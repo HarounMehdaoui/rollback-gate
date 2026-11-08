@@ -64,7 +64,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 - **Learn:** data-driven tests (`test.each`); keeping I/O at the edge (the loader is the only part
   that touches files).
 
-### [~] T1.05a Prisma behaviour lab
+### [x] T1.05a Prisma behaviour lab
 - **Goal:** replace guesses with evidence before any rule is built. A throwaway Prisma project under
   `spikes/prisma-lab/` against Postgres in Docker answers all 12 ⚠️ items in `docs/RULES.md` §6
   **by experiment**: generate migrations with `prisma migrate dev`, run queries, read the query log

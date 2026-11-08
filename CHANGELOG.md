@@ -19,8 +19,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   a fixed finding order, so the same findings always give the same report.
 - Snapshot loader and scenario runner (T1.04): `loadSnapshotFromDir` reads a release folder into a
   snapshot; one test file turns every `scenarios/` folder into tests, with the `_smoke` fixture.
+- Prisma behaviour lab results (T1.05a): every Prisma assumption in the rules catalogue checked by
+  experiment against Prisma 7.10.1 and Postgres 18.6; new rule RG-DB-023 (unique index dropped that
+  base relies on, RISKY).
 
 ### Changed
+- RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
+  other default itself. The `_smoke` scenario schemas are valid for Prisma 7.
 - Git workflow: squash-only auto-merge, ruleset on `main` (PR + up-to-date `ci`, no bypass), no
   stacked PRs, small doc fixes ride along in the next task's PR.
 - ADRs renumbered from 0010–0012 to 0001–0003.
