@@ -10,7 +10,7 @@ export interface UsedColumn {
   readonly nativeType: string | null;
   readonly isOptional: boolean;
   readonly isList: boolean;
-  /** Raw `@default(...)` text. Left unparsed until the T1.05 lab tells us who applies each default. */
+  /** Raw `@default(...)` text. Only `autoincrement()` and `dbgenerated()` are applied by the database. */
   readonly default?: string;
   /** Database name of the enum, for enum columns. */
   readonly enumName?: string;

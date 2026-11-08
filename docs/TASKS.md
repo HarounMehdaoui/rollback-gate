@@ -114,7 +114,9 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 
 ### [ ] T1.09 Normalizer, part 1 (tables and columns)
 - **Goal:** AST → `SourcedChange[]` for `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE … DROP COLUMN`,
-  `ADD COLUMN`, `RENAME COLUMN`, `RENAME TO` (table). `BEGIN`/`COMMIT` → nothing. Unknown statements →
+  `ADD COLUMN`, `RENAME COLUMN`, `RENAME TO` (table). One `ALTER TABLE` with several actions (Prisma's
+  rename: `DROP COLUMN …, ADD COLUMN …`) → one change per action. `BEGIN`/`COMMIT` and
+  `CREATE SCHEMA IF NOT EXISTS "public"` → nothing. Unknown statements →
   `Unrecognized`. Statements on a schema other than `public` → `Unrecognized`.
 - **Files:** `packages/db/src/sql/normalize.ts`, `packages/db/src/sql/normalizers/*.ts` + tests
 - **Done when:** each statement type has a test; quoted identifiers, unquoted (lower-cased) identifiers
