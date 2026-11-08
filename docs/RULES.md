@@ -5,7 +5,7 @@ must match it. Terms are defined in [GLOSSARY.md](GLOSSARY.md).
 
 Marker used in this file:
 - **⚠️ verify**: depends on Prisma or Postgres behaviour that has not been tested yet. Each item is
-  answered **by experiment** in the T1.05 Prisma behaviour lab, and the answer and evidence go in §6.
+  answered **by experiment** in the T1.05a Prisma behaviour lab, and the answer and evidence go in §6.
   Don't build on an item until its §6 entry is filled in.
 
 ## 1. Key assumption
@@ -446,7 +446,7 @@ DROP for it) and that Prisma accepts `@ignore` on a nullable field without a def
 
 ## 6. Prisma behaviour lab results
 
-Every ⚠️ item is answered **by experiment, not by reading docs**, in the T1.05 Prisma behaviour lab: a
+Every ⚠️ item is answered **by experiment, not by reading docs**, in the T1.05a Prisma behaviour lab: a
 throwaway Prisma project under `spikes/` (kept on the spike branch, never merged) running against
 Postgres in Docker. For each item, record the answer, the evidence (generated migration SQL, query log
 or the exact error message), and the Prisma + Postgres versions used. Then update the affected rule and

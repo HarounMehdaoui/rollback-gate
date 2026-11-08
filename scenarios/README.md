@@ -33,5 +33,5 @@ the verdict. A SAFE scenario has `"verdict": "SAFE", "findings": []`. Rule IDs c
 Rules:
 - One idea per scenario. The name says what it tests: `drop-ignored-column`, `enum-add-value`.
 - Use real `prisma migrate diff` output for the SQL whenever possible. (`_smoke` is hand-written in
-  Prisma's style for now; regenerate it once the T1.05 lab has Prisma installed.)
+  Prisma's style for now; regenerate it once the T1.05a lab has Prisma installed.)
 - Every rule has at least one scenario. Every fixed bug gets one.

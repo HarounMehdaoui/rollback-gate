@@ -9,7 +9,7 @@ Format for each task: **goal**, **files**, **done when**, **learn**.
 
 ## Phase 1 — DB analyzer, verdict engine, `check`
 
-Order: foundations (T1.01–T1.04) → Prisma behaviour lab + parser decisions (T1.05) → used set, SQL, history (T1.06–T1.09) →
+Order: foundations (T1.01–T1.04) → Prisma behaviour lab and parser decisions (T1.05a, T1.05b) → used set, SQL, history (T1.06–T1.09) →
 first rule and `analyzeDb` (T1.10–T1.11), so every later rule task ends with green scenarios →
 rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and severities: `docs/RULES.md`.
 
@@ -64,26 +64,31 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 - **Learn:** data-driven tests (`test.each`); keeping I/O at the edge (the loader is the only part
   that touches files).
 
-### [ ] T1.05 Prisma behaviour lab + parser ADRs
-- **Goal:** replace guesses with evidence before any rule is built.
-  - **Prisma behaviour lab:** a throwaway Prisma project under `spikes/prisma-lab/` against Postgres
-    in Docker. Answer all 12 ⚠️ items in `docs/RULES.md` §6 **by experiment**: generate migrations with
-    `prisma migrate dev`, run queries, read the query log and error messages. Record each answer and
-    its evidence in §6, then adjust the affected rules and remove their ⚠️ markers.
+### [~] T1.05a Prisma behaviour lab
+- **Goal:** replace guesses with evidence before any rule is built. A throwaway Prisma project under
+  `spikes/prisma-lab/` against Postgres in Docker answers all 12 ⚠️ items in `docs/RULES.md` §6
+  **by experiment**: generate migrations with `prisma migrate dev`, run queries, read the query log
+  and error messages. Record each answer and its evidence in §6, then adjust the affected rules and
+  remove their ⚠️ markers. Also confirm the chosen Prisma version runs on Node 26.
+- **Versions:** Prisma 7.10.1 (latest stable; 8.0 is still a release candidate), Postgres 18.6.
+- **Files:** `docs/RULES.md` (§6 + affected rules). `spikes/prisma-lab/` is committed on the branch
+  for the record but removed before the PR is merged.
+- **Done when:** every row in RULES.md §6 has an answer and evidence; no ⚠️ marker is left in RULES.md;
+  Prisma is confirmed on Node 26 (or the fallback to Node 24 is recorded).
+- **Learn:** how to run a technical spike, and why evidence beats documentation for edge-case behaviour.
+
+### [ ] T1.05b Spike + ADRs: Prisma schema parser and SQL parser
+- **Goal:** choose both parsers with evidence.
   - **ADR-0004 Prisma schema parser:** try ≥ 2 candidates on a schema with `@map`, `@@map`,
     `@ignore`, `@@ignore`, `@db.*` native types, `@default`s, enums and relations.
   - **ADR-0005 SQL parser:** libpg-query native vs WASM build, which Postgres grammar version it
-    ships, sync vs async API, install and CI impact.
-  - **Node 26 check:** confirm the chosen Prisma version and libpg-query install and run on Node 26.
-    If either doesn't, fall back to Node 24 (LTS), update T1.01's pins, and record why in ADR-0005.
-- **Files:** `docs/adr/0004-prisma-schema-parser.md`, `docs/adr/0005-sql-parser.md`, `docs/RULES.md`
-  (§6 + affected rules). `spikes/` is committed on the spike branch for the record but removed before
-  the PR is merged.
-- **Done when:** every row in RULES.md §6 has an answer and evidence; no ⚠️ marker is left in RULES.md;
-  both ADRs record options, results, decision and consequences; the Node version is confirmed.
-- **Size:** about a day, bigger than the usual half day. If it runs over, split it into lab (T1.05a)
-  and ADRs (T1.05b).
-- **Learn:** how to run a technical spike, and why evidence beats documentation for edge-case behaviour.
+    ships, sync vs async API, install and CI impact. Confirm it runs on Node 26; if not, fall back
+    to Node 24 (LTS), update T1.01's pins, and record why.
+- **Files:** `docs/adr/0004-prisma-schema-parser.md`, `docs/adr/0005-sql-parser.md` (throwaway spike
+  code stays on the branch, not merged)
+- **Done when:** both ADRs record options, test results, decision and consequences; the Node version
+  is confirmed for libpg-query.
+- **Learn:** comparing libraries on your own test cases instead of their READMEs.
 
 ### [ ] T1.06 Prisma snapshot → UsedSet
 - **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`.
@@ -152,7 +157,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 ### [ ] T1.15 Rules: nullability and defaults
 - **Goal:** RG-DB-009 set NOT NULL, RG-DB-010 drop NOT NULL, RG-DB-011 drop default.
 - **Files:** one rule file each + tests + one scenario each
-- **Done when:** the rules use the T1.05 lab answers (RULES.md §6, rows 4 and 5).
+- **Done when:** the rules use the T1.05a lab answers (RULES.md §6, rows 4 and 5).
 
 ### [ ] T1.16 Rules: types
 - **Goal:** type compatibility table (Postgres type normalization, known widenings) + RG-DB-006
