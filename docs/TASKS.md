@@ -93,7 +93,8 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 ### [ ] T1.06 Prisma snapshot → UsedSet
 - **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`.
   Each column records Prisma scalar, native type (`@db.*` or the scalar's default), optionality,
-  list, default and enum (RULES.md §2).
+  list, default and enum (RULES.md §2). If RG-DB-023 is accepted: also base's unique indexes by name
+  (`map:` or Prisma's default `<Table>_<columns>_key`) with their columns.
 - **Files:** `packages/db/src/prisma/{parse-schema,used-set}.ts` + tests
 - **Done when:** tests cover `@map`, `@@map`, `@ignore`, `@@ignore`, relation fields (no column),
   `@id`, enums (incl. `@@map` on enums), `@db.*` types and default native types.
@@ -177,7 +178,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
 
 ### [ ] T1.18 Rules: constraints and enums
 - **Goal:** RG-DB-012 unique / primary key, RG-DB-013 check, RG-DB-014 foreign key,
-  RG-DB-015 enum value added, RG-DB-017 enum renamed.
+  RG-DB-015 enum value added, RG-DB-017 enum renamed, RG-DB-023 unique index dropped (if accepted).
 - **Files:** one rule file each + tests + one scenario each
 
 ### [ ] T1.19 Rules: data changes
