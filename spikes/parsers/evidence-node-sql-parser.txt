@@ -1,9 +1,0 @@
-create-schema-and-tables.sql: OK 10 stmts
-do-block.sql: ERROR Expected "--", "/*", ":=", "=", "FOR", "TO", or [ \t\n\r] but "$" found.
-e1-field-rename.sql: OK 1 stmts
-e10-unique-and-renames.sql: ERROR Expected [A-Za-z0-9_\-$一-龥À-ſ] but " " found.
-e1b-model-rename.sql: OK 2 stmts
-e8-enum-remove-value.sql: ERROR Expected "--", "/*", "BIGINT", "BIGSERIAL", "BIT", "BOOL", "BOOLEAN", "CHAR", "CHARACTER", "CIDR", "DATE", "DA
-init-with-enum-default.sql: OK 3 stmts
-invalid.sql: ERROR Expected ",", "--", "/*", ";", "AUTO_INCREMENT", "BY", "CHARACTER", "CHECK", "COLLATE", "COLUMN_FORMAT", "COMM
-pg17-set-expression.sql: ERROR Expected "--", "/*", "DEFAULT", "NOT NULL", "data", or [ \t\n\r] but "E" found.
