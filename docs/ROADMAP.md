@@ -13,11 +13,12 @@ Each phase ends with a git tag and a short demo you could show a reviewer.
 
 ## Open decisions (each becomes an ADR)
 
-- [ ] Prisma schema parser (`@mrleebo/prisma-ast` vs Prisma's internal `getDMMF` vs other) — Phase 1, T1.05, ADR-0004
-- [ ] SQL parser: libpg-query native vs WASM build, Postgres grammar version, CI impact — Phase 1, T1.05, ADR-0005
+- [ ] Prisma schema parser (`@mrleebo/prisma-ast` vs Prisma's internal `getDMMF` vs other) — Phase 1, T1.05b, ADR-0004
+- [ ] SQL parser: libpg-query native vs WASM build, Postgres grammar version, CI impact — Phase 1, T1.05b, ADR-0005
 - [ ] How multi-statement patterns (Prisma's enum recreate) are recognized — Phase 1, T1.20, ADR-0006
 - [x] Severity principle: certain → UNSAFE, possible → RISKY (`docs/RULES.md` §3)
-- [ ] Answer the "⚠️ verify" items in `docs/RULES.md` by experiment — T1.05 (Prisma behaviour lab)
+- [x] Answer the "verify" items in `docs/RULES.md` by experiment — T1.05a (Prisma 7.10.1, Postgres 18.6)
+- [x] RG-DB-023 (unique index dropped that base upserts on): RISKY
 - [x] RG-DB-011 on a nullable column: RISKY
 - [ ] Can maintainers approve the override on their own PR? — before Phase 4
 - [ ] How a PR's override (label + rollback plan) carries into the release-mode verdict, which covers

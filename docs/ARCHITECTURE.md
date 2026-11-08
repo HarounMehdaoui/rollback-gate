@@ -74,7 +74,7 @@ interface UsedColumn {
   nativeType: string | null;   // Postgres type; null = couldn't resolve → RG-DB-008 (UNSAFE)
   isOptional: boolean;
   isList: boolean;
-  default?: string;            // raw @default(...) text; classified by RG-DB-011 after the T1.05 lab
+  default?: string;            // raw @default(...) text; RG-DB-011 only cares about autoincrement()/dbgenerated()
   enumName?: string;           // DB name of the enum type, for enum columns
 }
 interface UsedEnum { values: readonly string[] }

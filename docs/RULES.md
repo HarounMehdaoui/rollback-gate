@@ -3,10 +3,8 @@
 This is the source of truth for every rule ID, severity, reason and fix. Code, scenarios and the README
 must match it. Terms are defined in [GLOSSARY.md](GLOSSARY.md).
 
-Marker used in this file:
-- **⚠️ verify**: depends on Prisma or Postgres behaviour that has not been tested yet. Each item is
-  answered **by experiment** in the T1.05 Prisma behaviour lab, and the answer and evidence go in §6.
-  Don't build on an item until its §6 entry is filled in.
+Statements about Prisma's behaviour were checked by experiment in the T1.05a lab (Prisma 7.10.1,
+Postgres 18.6). The answers and evidence are in §6.
 
 ## 1. Key assumption
 
@@ -117,6 +115,8 @@ breaks in base) and a fix. "No finding" lists the cases where the rule stays sil
 - **Reason:** base queries the old table name, which no longer exists.
 - **Fix:** keep the database name and rename only the model (`@@map("OldName")`), or do an
   expand/contract migration over several releases.
+- **Note:** Prisma turns a model rename into `DROP TABLE` + `CREATE TABLE` (§6 row 1), so Prisma
+  renames show up as RG-DB-001. RG-DB-003 catches hand-written renames.
 - **Phase:** 1
 
 #### RG-DB-004 · Rename column
@@ -126,9 +126,9 @@ breaks in base) and a fix. "No finding" lists the cases where the rule stays sil
 - **Reason:** base selects the old column name, so every query on the model fails (same as RG-DB-002).
 - **Fix:** keep the column name and rename only the field (`@map("old_name")`), or follow the
   4-release rename in §5.
-- **Note:** ⚠️ verify that `prisma migrate dev` turns a field rename into `DROP COLUMN` + `ADD COLUMN`
-  rather than `RENAME COLUMN`. If so, Prisma renames show up as RG-DB-002, and RG-DB-004 catches
-  hand-written renames.
+- **Note:** Prisma turns a field rename into one statement, `ALTER TABLE … DROP COLUMN "old", ADD COLUMN
+  "new" …` (§6 row 1), so Prisma renames show up as RG-DB-002 (and RG-DB-005 if the new column is
+  required). RG-DB-004 catches hand-written renames.
 - **Phase:** 1
 
 #### RG-DB-005 · Required column added
@@ -156,8 +156,8 @@ Proposed initial list. Each entry is a widening; the reverse direction is a narr
 - `numeric(p,s)` → `numeric(p',s)` with p' > p
 - `timestamp(p)` → `timestamp(p')` with p' > p
 
-⚠️ verify Prisma's default native type for each scalar: `String` → `text`, `Int` → `integer`,
-`BigInt` → `bigint`, `Float` → `double precision`, `Decimal` → `decimal(65,30)`,
+Prisma's default native type for each scalar without `@db.*` (§6 row 2): `String` → `text`,
+`Int` → `integer`, `BigInt` → `bigint`, `Float` → `double precision`, `Decimal` → `decimal(65,30)`,
 `DateTime` → `timestamp(3)`, `Boolean` → `boolean`, `Json` → `jsonb`, `Bytes` → `bytea`.
 
 #### RG-DB-006 · Type narrowing
@@ -177,10 +177,11 @@ Proposed initial list. Each entry is a widening; the reverse direction is a narr
   can't represent all values of the new type (for example `Int` column → `bigint`). **No finding** when
   the base scalar still covers everything (`varchar(50)` → `varchar(255)` is still a `String`).
 - **Severity:** RISKY
-- **Why (possible):** base can still write. It only fails when it *reads* a value head wrote that
-  doesn't fit base's scalar.
-- **Reason:** base reads of rows that head wrote outside base's range fail.
-  ⚠️ verify what Prisma does when it reads a `bigint` above 2³¹ into an `Int` field (error or overflow).
+- **Why (possible):** base can still read and write. It goes wrong only for values head writes beyond
+  what base's scalar handles.
+- **Reason:** Prisma doesn't fail when it reads a `bigint` into an `Int` field: it returns a JavaScript
+  number (§6 row 3). That number is exact only up to 2⁵³, so larger values come back silently wrong,
+  and base code that assumes a 32-bit range may misbehave.
 - **Fix:** widen base's schema type first (`BigInt`), then widen the column.
 - **Phase:** 1
 
@@ -214,16 +215,18 @@ Proposed initial list. Each entry is a widening; the reverse direction is a narr
 - **Condition:** the column is used by base and base's field is required. **No finding** if base's
   field is already optional.
 - **Severity:** RISKY (owner's decision)
-- **Reason:** if head writes NULL here, base reads a NULL in a field its client types as non-null.
-  ⚠️ verify that Prisma raises an error (rather than returning `null`) when it reads NULL into a
-  required field.
+- **Reason:** if head writes NULL here, base reads it without any error: Prisma returns `null` for a
+  field its TypeScript type says is never null (§6 row 4). Base breaks later, wherever its code uses
+  the value (a crash on `.length`, a wrong comparison).
 - **Fix:** keep writing the column in this release, and stop writing it one release later. See §5.
 - **Phase:** 1
 
 #### RG-DB-011 · Drop default
 - **Change:** `DropDefault`
 - **Condition:** the column is used by base, and base's field has a `@default` that the **database**
-  applies (the Prisma engine doesn't send a value).
+  applies. With Prisma 7 that's only `autoincrement()` and `dbgenerated(...)`: for every other default
+  (`now()`, literals, enum values, `uuid()`, `cuid()`, `@updatedAt`) Prisma sends the value itself, so
+  dropping the database default doesn't affect base (§6 row 5). **No finding** for those.
 - **Severity:** UNSAFE if the column is NOT NULL. RISKY if it is nullable.
 - **Why:** a default exists because code omits the field. If NOT NULL, base's inserts that rely on the
   default now fail during normal use (certain → UNSAFE). If nullable, the inserts still succeed but
@@ -232,16 +235,13 @@ Proposed initial list. Each entry is a widening; the reverse direction is a narr
 - **Reason:** base inserts that relied on the default now fail (NOT NULL) or store NULL.
 - **Fix:** keep the default until base no longer relies on it (base sets the value explicitly), then
   drop it one release later.
-- **⚠️ verify:** which Prisma defaults are applied by the database and which by the engine or client:
-  `now()`, literals (`@default("x")`, `@default(0)`, enum values), `autoincrement()`, `dbgenerated()`,
-  `uuid()`/`cuid()` (expected: client-side, no DB default), `@updatedAt` (expected: engine-side, no DB
-  default). The rule needs this table.
 - **Phase:** 1
 
 ### Constraints and indexes
 
-New constraints are **RISKY**, not UNSAFE: base breaks only if it writes data that violates them. Dropping a constraint or an index can't make base's
-writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
+New constraints are **RISKY**, not UNSAFE: base breaks only if it writes data that violates them.
+Dropping a constraint or an index can't make base's writes violate anything, so it produces no
+finding, except a unique index base's `upsert` relies on (RG-DB-023).
 
 #### RG-DB-012 · New unique constraint or primary key
 - **Change:** `CreateUniqueIndex`, or `AddConstraint` with `constraint = 'unique' | 'primaryKey'`
@@ -250,9 +250,6 @@ writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
 - **Why (possible):** base fails only if it inserts a duplicate.
 - **Reason:** base writes that create a duplicate value now fail with a unique violation.
 - **Fix:** add `@unique` to the code (and handle the conflict) one release before adding the index.
-- **⚠️ verify:** whether Prisma's `upsert` relies on a unique constraint at the database level (native
-  `ON CONFLICT`). If it does, *dropping* a unique index that base's `upsert` relies on should also be a
-  finding, and the "drops are silent" rule above needs an exception.
 - **Phase:** 1
 
 #### RG-DB-013 · New CHECK constraint
@@ -276,14 +273,29 @@ writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
 - **Fix:** add the relation to the schema and make the code respect it one release before adding the FK.
 - **Phase:** 1
 
+#### RG-DB-023 · Unique index dropped that base relies on
+- **Change:** `DropIndex`, or `DropConstraint` of a unique constraint
+- **Condition:** the dropped name is one of base's unique indexes (from `@unique`, `@@unique` or `@id`
+  on a used table). `DROP INDEX` carries only the name, so this needs the used set to record base's
+  unique indexes by name: Prisma's default is `<Table>_<columns>_key`, or the `map:` value (T1.06).
+- **Severity:** RISKY (owner's decision)
+- **Why (possible):** Prisma's `upsert` is a native `INSERT … ON CONFLICT (<columns>)`, which needs that
+  unique index (§6 row 6). Base breaks only on the code paths that `upsert` on those columns; reads and
+  plain writes keep working.
+- **Reason:** base's `upsert` on these columns fails with `P2039` (Postgres `42P10`: "there is no
+  unique or exclusion constraint matching the ON CONFLICT specification").
+- **Fix:** remove `@unique` from the schema and stop using `upsert` on that field in one release, and
+  drop the index one release later.
+- **Phase:** 1
+
 ### Enums
 
 #### RG-DB-015 · Enum value added
 - **Change:** `AddEnumValue`
 - **Condition:** the enum is used by base.
 - **Severity:** RISKY (owner's decision)
-- **Reason:** base reads of rows that hold the new value fail, because base's client doesn't know the
-  value. ⚠️ verify that Prisma raises an error on an unknown enum value when reading.
+- **Reason:** base reads of rows that hold the new value fail: Prisma raises
+  `P2023 Value '<value>' not found in enum '<Enum>'` (§6 row 7).
 - **Fix:** add the value in one release without writing it, and start writing it one release later.
 - **Phase:** 1
 
@@ -298,10 +310,10 @@ writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
 - **Fix:** stop writing the value in one release, and remove it one release later.
 - **Before T1.20:** the recreate statements fall through to RG-DB-008 (`ALTER COLUMN … TYPE "Role_new"`
   is an unknown type change) and RG-DB-017, so the tool fails closed (UNSAFE, stricter than the final
-  RISKY) until the recognizer exists. ⚠️ verify Prisma's exact
-  SQL for removing a value (`CREATE TYPE "X_new"` → `ALTER COLUMN … TYPE "X_new" USING …` →
-  `ALTER TYPE "X" RENAME TO "X_old"` → `ALTER TYPE "X_new" RENAME TO "X"` → `DROP TYPE "X_old"`,
-  inside `BEGIN`/`COMMIT`, plus default handling).
+  RISKY) until the recognizer exists. Prisma's exact SQL (§6 row 8), inside `BEGIN; … COMMIT;`:
+  `CREATE TYPE "X_new"` → `ALTER COLUMN … DROP DEFAULT` → `ALTER COLUMN … TYPE "X_new" USING …` →
+  `ALTER TYPE "X" RENAME TO "X_old"` → `ALTER TYPE "X_new" RENAME TO "X"` → `DROP TYPE "X_old"` →
+  `ALTER COLUMN … SET DEFAULT …` (the default lines appear only when the column has a default).
 - **Phase:** 1
 
 #### RG-DB-017 · Enum type renamed
@@ -310,9 +322,8 @@ writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
 - **Severity:** UNSAFE
 - **Why (certain):** if base's queries name the type, every base write to columns of that enum fails.
   This is the same class as RG-DB-003.
-- **Reason:** base's queries cast to the old enum type name, which no longer exists.
-- **⚠️ verify:** that Prisma casts enum parameters by type name (for example `CAST($1 AS "Role")`). If
-  it doesn't, the break is no longer certain and this rule must be revisited.
+- **Reason:** base's queries cast to the old enum type name, which no longer exists. Prisma sends
+  `CAST($1::text AS "public"."Role")` for every enum parameter (§6 row 9).
 - **Fix:** keep the database name and rename in Prisma only (`@@map` on the enum).
 - **Phase:** 1
 
@@ -355,8 +366,9 @@ writes fail, so it produces no finding (but see ⚠️ under RG-DB-012).
 - **Reason:** environments that already applied the old version now differ from what head's history
   says, so neither base's nor head's schema can be trusted to match the database.
 - **Fix:** never edit an applied migration. Revert the edit and add a new migration instead.
-- **Note:** the hash is taken after CRLF → LF, so a change of line endings alone isn't an edit.
-  ⚠️ verify that Prisma's own checksum agrees (§6 row 12).
+- **Note:** the hash is taken after CRLF → LF, so a change of line endings alone isn't an edit. Prisma
+  agrees: its stored checksum is the sha256 of the LF content, and a CRLF-only change isn't reported
+  as modified (§6 row 12).
 - **Phase:** 1
 
 #### RG-DB-021 · Unparsable SQL
@@ -384,14 +396,14 @@ them keeps them from becoming `Unrecognized` (RG-DB-022) noise.
 |---|---|---|
 | `CreateTable` | `CREATE TABLE` | base doesn't know the table |
 | `CreateIndex` | `CREATE INDEX` (non-unique) | doesn't change what base can read or write |
-| `DropIndex`, `DropConstraint` | `DROP INDEX`, `ALTER TABLE … DROP CONSTRAINT` | relaxes rules (see ⚠️ under RG-DB-012) |
-| `RenameIndex` | `ALTER INDEX … RENAME`, `ALTER TABLE … RENAME CONSTRAINT` | base never names indexes |
+| `DropIndex`, `DropConstraint` | `DROP INDEX`, `ALTER TABLE … DROP CONSTRAINT` | relaxes rules; exception: a unique index base relies on (RG-DB-023) |
+| `RenameIndex` | `ALTER INDEX … RENAME`, `ALTER TABLE … RENAME CONSTRAINT` (index, primary-key and foreign-key renames, §6 row 10) | base never names indexes |
 | `SetDefault` | `ALTER COLUMN … SET DEFAULT` | base inserts still succeed |
 | `CreateEnum`, `DropEnum` | `CREATE TYPE … AS ENUM`, `DROP TYPE` | base can't use a new type. A used enum can't be dropped while a used column still has that type, so that case is already caught by the column rules |
+| — | `CREATE SCHEMA IF NOT EXISTS "public"` | Prisma 7 emits it at the top of a diff from an empty database (§6, other findings) |
 | — | `BEGIN`, `COMMIT`, comments | the normalizer skips them and produces no `Change` |
 
-⚠️ verify that Prisma emits `DROP INDEX "name"` (the name only, no table), and when it emits
-`ALTER INDEX … RENAME TO` or `RENAME CONSTRAINT`.
+Prisma drops an index by name only: `DROP INDEX "User_email_key"`, with no table (§6 row 10).
 
 ### Reserved for later phases
 
@@ -441,30 +453,42 @@ exists: head writes rows, then base reads them, so the merged version would fail
 **Why R3 and R4 can't be merged** (retire and drop in one release): base R2 still uses `name`, so the
 DROP COLUMN is RG-DB-002, UNSAFE. The tool catches this one statically.
 
-⚠️ verify that `@ignore` keeps the column in the database (`prisma migrate dev` must not generate a
-DROP for it) and that Prisma accepts `@ignore` on a nullable field without a default.
+Checked (§6 row 11): adding `@ignore` generates an empty migration, so the column stays, and Prisma
+accepts `@ignore` on a nullable field without a default (and even on a required one).
 
 ## 6. Prisma behaviour lab results
 
-Every ⚠️ item is answered **by experiment, not by reading docs**, in the T1.05 Prisma behaviour lab: a
-throwaway Prisma project under `spikes/` (kept on the spike branch, never merged) running against
-Postgres in Docker. For each item, record the answer, the evidence (generated migration SQL, query log
-or the exact error message), and the Prisma + Postgres versions used. Then update the affected rule and
-remove its ⚠️ marker.
+Every statement this catalogue makes about Prisma was checked **by experiment, not by reading docs**,
+in the T1.05a lab: a throwaway Prisma project against Postgres in Docker, with statement logging on so
+the SQL Postgres actually received is visible. The lab (schemas, script, raw evidence) is in the T1.05a
+PR's history under `spikes/prisma-lab/`.
 
-Lab versions: Prisma `…` · Postgres `…` · Node `…`
+Lab versions: Prisma `7.10.1` (with `@prisma/adapter-pg` 7.10.1) · Postgres `18.6` · Node `26.13.0`.
+Rerun the lab when the supported Prisma version changes.
 
 | # | Question | Affects | Answer | Evidence |
 |---|---|---|---|---|
-| 1 | Does `migrate dev` turn a field rename into `DROP` + `ADD` rather than `RENAME COLUMN`? | RG-DB-004 | | |
-| 2 | What native type does Prisma use for each scalar without `@db.*`? | Types (§4) | | |
-| 3 | What happens when base reads a `bigint` above 2³¹ into an `Int` field (error or overflow)? | RG-DB-007 | | |
-| 4 | Does reading NULL into a required field raise an error, or return `null`? | RG-DB-010 | | |
-| 5 | Which `@default`s does the database apply, and which does the engine or client apply? (`now()`, literals, enum values, `autoincrement()`, `dbgenerated()`, `uuid()`/`cuid()`, `@updatedAt`) | RG-DB-011 | | |
-| 6 | Does `upsert` rely on a database unique constraint (native `ON CONFLICT`)? | RG-DB-012 | | |
-| 7 | Does reading an unknown enum value raise an error? | RG-DB-015 | | |
-| 8 | What is the exact SQL `migrate dev` generates to remove an enum value? | RG-DB-016, ADR-0006 | | |
-| 9 | Are enum parameters cast by type name in queries? | RG-DB-017 | | |
-| 10 | What does Prisma emit for dropping a unique index, and when does it emit `ALTER INDEX … RENAME` or `RENAME CONSTRAINT`? | no-rule table | | |
-| 11 | Does `@ignore` keep the column (no DROP generated), and is it allowed on a nullable field without a default? | §5 | | |
-| 12 | Does Prisma's own migration checksum ignore line endings (CRLF vs LF)? We hash after CRLF → LF; if Prisma doesn't, it could flag a file we treat as unchanged | RG-DB-020 | | |
+| 1 | Does a field rename become `DROP` + `ADD` rather than `RENAME COLUMN`? | RG-DB-002/003/004/005 | **Yes**, in one statement. A model rename becomes `DROP TABLE` + `CREATE TABLE`. | `ALTER TABLE "User" DROP COLUMN "name", ADD COLUMN "fullName" TEXT NOT NULL;` |
+| 2 | What native type does Prisma use for each scalar without `@db.*`? | Types (§4) | As assumed: `TEXT`, `INTEGER`, `BIGINT`, `DOUBLE PRECISION`, `DECIMAL(65,30)`, `BOOLEAN`, `TIMESTAMP(3)`, `JSONB`, `BYTEA` | `CREATE TABLE` from `migrate diff --from-empty` |
+| 3 | Reading a `bigint` above 2³¹ into an `Int` field: error or overflow? | RG-DB-007 | **Neither**: it returns a JS number (5000000000 came back exact). Exact only up to 2⁵³. | `findUnique` → `{"small":5000000000}` |
+| 4 | Reading NULL into a required field: error or `null`? | RG-DB-010 | **`null`, no error** | `findUnique` → `{"label":null}` |
+| 5 | Which `@default`s does the database apply, and which does Prisma send? | RG-DB-011 | Database: only `autoincrement()` and `dbgenerated()`. Prisma sends `now()`, literals, enum values, `uuid()`, `cuid()`, `@updatedAt` itself (the DDL still has `DEFAULT` clauses for `now()`, literals and enums). | `INSERT INTO "public"."Item" ("small","label","email","role","createdAt","status","uuid","cuid","updatedAt") VALUES (…)`: no `id`, no `dbgen` |
+| 6 | Does `upsert` rely on a database unique constraint? | RG-DB-023 | **Yes**: native `INSERT … ON CONFLICT ("email") DO UPDATE`. With the unique index dropped, base's `upsert` fails. | `P2039 … Code: 42P10. there is no unique or exclusion constraint matching the ON CONFLICT specification` |
+| 7 | Does reading an unknown enum value raise an error? | RG-DB-015 | **Yes** | `P2023 Value 'OWNER' not found in enum 'Role'` |
+| 8 | Exact SQL to remove an enum value? | RG-DB-016, ADR-0006 | `BEGIN; CREATE TYPE "Role_new" …; ALTER COLUMN "role" DROP DEFAULT; ALTER COLUMN "role" TYPE "Role_new" USING ("role"::text::"Role_new"); ALTER TYPE "Role" RENAME TO "Role_old"; ALTER TYPE "Role_new" RENAME TO "Role"; DROP TYPE "Role_old"; ALTER COLUMN "role" SET DEFAULT 'USER'; COMMIT;` | `migrate diff` output |
+| 9 | Are enum parameters cast by type name? | RG-DB-017 | **Yes**, schema-qualified | `WHERE "public"."Item"."role" = CAST($1::text AS "public"."Role")` |
+| 10 | SQL for dropping a unique index; for renames of indexes and constraints? | no-rule table | `DROP INDEX "User_email_key"` (name only). Index rename: `ALTER INDEX … RENAME TO`. Primary-key and foreign-key renames: `ALTER TABLE … RENAME CONSTRAINT`. | `migrate diff` output |
+| 11 | Does `@ignore` keep the column? Allowed on a nullable field without a default? | §5 | **Yes** and **yes** (also on a required one) | `-- This is an empty migration.`; `prisma validate` passes |
+| 12 | Does Prisma's own checksum ignore CRLF vs LF? | RG-DB-020 | **Yes**: the stored checksum is the sha256 of the LF content (same as ours), and a CRLF-only change isn't reported | stored `89c943…` = sha256 of the LF file; `migrate status`: "Database schema is up to date!" |
+
+**Other findings** (for later tasks):
+- Prisma 7 rejects `url` in the `datasource` block (`P1012`): the connection moved to `prisma.config.ts`.
+  That config can also move the schema and migrations folders, which the loader doesn't follow yet
+  (it reads `prisma/schema.prisma`, T1.04).
+- A diff from an empty database starts with `CREATE SCHEMA IF NOT EXISTS "public";`, now in the no-rule
+  table. A normal first `migrate dev` migration didn't include it.
+- One `ALTER TABLE` can carry several actions (the rename in row 1): the normalizer (T1.09) must split
+  it into one change per action.
+- After a column with `dbgenerated()`, a later `migrate dev` can emit a redundant
+  `ALTER COLUMN … SET DEFAULT` for it. Harmless: `SetDefault` has no rule.
+- The Prisma 7 client queries with schema-qualified names (`"public"."Item"`).

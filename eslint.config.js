@@ -20,7 +20,8 @@ const builtinImportBans = nodeBuiltins.flatMap((name) => [
 ]);
 
 export default defineConfig(
-  globalIgnores(['**/dist/', '**/dist-test/', '**/coverage/']),
+  // Hidden folders at the root hold tool configuration, not project code.
+  globalIgnores(['**/dist/', '**/dist-test/', '**/coverage/', 'spikes/', '.*/']),
 
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
