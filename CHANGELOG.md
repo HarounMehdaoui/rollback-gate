@@ -17,6 +17,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   rules, analyzer and verdict types, `RuleId` format, and `assertNever` for exhaustive switches.
 - Verdict engine (T1.03): `computeVerdict` (worst severity wins, no findings = SAFE) with counts and
   a fixed finding order, so the same findings always give the same report.
+- Snapshot loader and scenario runner (T1.04): `loadSnapshotFromDir` reads a release folder into a
+  snapshot; one test file turns every `scenarios/` folder into tests, with the `_smoke` fixture.
 
 ### Changed
 - Git workflow: squash-only auto-merge, ruleset on `main` (PR + up-to-date `ci`, no bypass), no
