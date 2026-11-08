@@ -1,8 +1,0 @@
-datasource db {
-  provider = "postgresql"
-}
-
-model User {
-  id     Int     @id
-  legacy String?
-}

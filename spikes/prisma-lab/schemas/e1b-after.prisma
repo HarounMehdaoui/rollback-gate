@@ -1,8 +1,0 @@
-datasource db {
-  provider = "postgresql"
-}
-
-model Account {
-  id   Int    @id @default(autoincrement())
-  name String
-}

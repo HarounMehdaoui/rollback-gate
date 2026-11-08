@@ -1,2 +1,0 @@
-execute <unnamed>: SELECT "public"."Item"."id" FROM "public"."Item" WHERE "public"."Item"."role" = CAST($1::text AS "public"."Role") OFFSET $2
-Parameters: $1 = 'ADMIN', $2 = '0'

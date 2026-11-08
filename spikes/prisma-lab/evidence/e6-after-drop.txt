@@ -1,6 +1,0 @@
-e6 ERROR: PrismaClientKnownRequestError P2039
-
-Invalid `prisma.item.upsert()` invocation:
-
-
-Database error. Code: `42P10`. Message: `there is no unique or exclusion constraint matching the ON CONFLICT specification`
