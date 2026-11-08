@@ -53,7 +53,7 @@ rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and se
   source order), and sources of each kind (statement, migration, release).
 - **Learn:** writing tests first; pure functions.
 
-### [ ] T1.04 Snapshot loader + scenario runner
+### [~] T1.04 Snapshot loader + scenario runner
 - **Goal:** `loadSnapshotFromDir(dir) → Snapshot` (reads `prisma/schema.prisma` and
   `prisma/migrations/*/migration.sql`, computes sha256), and one Vitest file that discovers
   `scenarios/*/` and compares results with `expected.json`.
