@@ -124,7 +124,7 @@ type Analyzer = (base: Snapshot, head: Snapshot) => readonly Finding[];   // ana
 
 interface Verdict {
   verdict: Severity;                                  // worst finding, or SAFE when there are none
-  findings: readonly Finding[];                       // sorted: UNSAFE first, then source order
+  findings: readonly Finding[];                       // sorted: UNSAFE first, then source (RULES.md §3)
   counts: { unsafe: number; risky: number };
 }
 ```
@@ -159,7 +159,7 @@ running. See [ADR-0001](adr/0001-release-mode-against-deployed-base.md).
    RISKY or UNSAFE findings. The backfill exception needs no extra context: columns added in this
    release are never in base's used set (RULES.md, RG-DB-018).
 7. **Verdict (core):** `computeVerdict(findings)`. Worst severity wins, no findings = SAFE; findings
-   sorted by severity, then source order.
+   sorted by severity, then source, rule ID and target (RULES.md §3).
 8. **Output (cli):** human text or `--format json`. Exit codes: `0` = SAFE or RISKY, `1` = UNSAFE,
    `2` = tool error.
 

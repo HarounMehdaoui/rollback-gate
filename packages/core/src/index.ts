@@ -2,6 +2,7 @@
 export const packageName = '@rollbackgate/core';
 
 export { assertNever } from './assert-never.js';
+export { computeVerdict } from './verdict-engine.js';
 export type { Analyzer } from './analyzer.js';
 export type { Change, ChangeKind, ChangeOfKind, ConstraintType } from './change.js';
 export type { Finding, FindingSource, SourcedChange } from './finding.js';
