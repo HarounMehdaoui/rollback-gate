@@ -41,16 +41,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.08 Migration history diff
 `diffMigrations`: new migrations in head's order (including one merged late), `EditedMigration` (`modified` / `removed`) in base's order, source `{ kind: 'migration' }`.
 
-### [ ] T1.09 Normalizer, part 1 (tables and columns)
-- **Goal:** AST → `SourcedChange[]` for `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE … DROP COLUMN`,
-  `ADD COLUMN`, `RENAME COLUMN`, `RENAME TO` (table). One `ALTER TABLE` with several actions (Prisma's
-  rename: `DROP COLUMN …, ADD COLUMN …`) → one change per action. `BEGIN`/`COMMIT` and
-  `CREATE SCHEMA IF NOT EXISTS "public"` → nothing. Unknown statements →
-  `Unrecognized`. Statements on a schema other than `public` → `Unrecognized`.
-- **Files:** `packages/db/src/sql/normalize.ts`, `packages/db/src/sql/normalizers/*.ts` + tests
-- **Done when:** each statement type has a test; quoted identifiers, unquoted (lower-cased) identifiers
-  and `"public".` prefixes are handled.
-- **Learn:** reading a Postgres AST; the adapter pattern.
+### [x] T1.09 Normalizer, part 1 (tables and columns)
+`normalizeMigration` + one adapter per statement type in `sql/normalizers/`. Multi-action `ALTER TABLE` → one change per action; an unknown action adds one `Unrecognized` beside the known ones; inline column constraints → `AddConstraint`; identity and primary key columns count as NOT NULL; `ROLLBACK` is `Unrecognized`.
 
 ### [ ] T1.10 Rule engine + drop rules
 - **Goal:** `runRules(sourcedChanges, ctx, rules) → Finding[]` (adds `ruleId` and `source`);

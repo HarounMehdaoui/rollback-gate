@@ -30,6 +30,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   is reported with its position instead of crashing.
 - Migration history diff (T1.08): `diffMigrations` finds the migrations a release adds and the
   already-applied ones it edited or removed.
+- Normalizer, part 1 (T1.09): table and column statements become changes, one per action; anything
+  not modelled, or outside the `public` schema, becomes `Unrecognized`.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
