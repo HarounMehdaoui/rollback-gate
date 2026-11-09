@@ -59,10 +59,8 @@ RG-DB-003, RG-DB-004, RG-DB-005 (UNSAFE). Scenarios `rename-used-table`, `rename
 ### [x] T1.14 Normalizer, part 2 (column alterations)
 `AlterColumnType` (type spelled like the used set: `int4`, `varchar(50)`; `hasUsing`), `SetNotNull`, `DropNotNull`, `SetDefault`, `DropDefault`, tested on Prisma 7.10.1's verbatim `migrate diff` output. Prisma's SQL for removing `autoincrement()` is unparsable (RULES.md §6).
 
-### [~] T1.15 Rules: nullability and defaults
-- **Goal:** RG-DB-009 set NOT NULL, RG-DB-010 drop NOT NULL, RG-DB-011 drop default.
-- **Files:** one rule file each + tests + one scenario each
-- **Done when:** the rules use the T1.05a lab answers (RULES.md §6, rows 4 and 5).
+### [x] T1.15 Rules: nullability and defaults
+RG-DB-009 and RG-DB-010 (RISKY, by base's optionality), RG-DB-011 (`autoincrement()` / `dbgenerated()` only; UNSAFE if required, RISKY if optional). Scenarios `set-not-null-optional`, `drop-not-null-required`, `drop-database-default`.
 
 ### [ ] T1.16 Rules: types
 - **Goal:** type compatibility table (Postgres type normalization, known widenings) + RG-DB-006

@@ -42,6 +42,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   RG-DB-005 (NOT NULL column without default added), UNSAFE when base uses the table.
 - Normalizer, part 2 (T1.14): column type, NOT NULL and default alterations become changes, checked
   against Prisma 7.10.1's real output.
+- Nullability and default rules (T1.15): RG-DB-009 (NOT NULL set), RG-DB-010 (NOT NULL dropped) and
+  RG-DB-011 (database default dropped).
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
