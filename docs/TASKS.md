@@ -68,7 +68,7 @@ RG-DB-009 and RG-DB-010 (RISKY, by base's optionality), RG-DB-011 (`autoincremen
 ### [x] T1.17 Normalizer, part 3 (constraints, indexes, enums, data)
 New adapters `create-index`, `enums`, `data`; `drop`, `rename` and `alter-table` extended. Constraint rename → `RenameIndex`; unique expression index, `RENAME VALUE`, exclusion constraint → `Unrecognized`. Tested on Prisma 7.10.1's output; Prisma never renames an enum in place (RULES.md §6).
 
-### [ ] T1.18 Rules: constraints and enums
+### [~] T1.18 Rules: constraints and enums
 - **Goal:** RG-DB-012 unique / primary key, RG-DB-013 check, RG-DB-014 foreign key,
   RG-DB-015 enum value added, RG-DB-017 enum renamed, RG-DB-023 unique index dropped.
 - **Files:** one rule file each + tests + one scenario each
