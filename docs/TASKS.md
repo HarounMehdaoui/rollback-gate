@@ -65,13 +65,8 @@ RG-DB-009 and RG-DB-010 (RISKY, by base's optionality), RG-DB-011 (`autoincremen
 ### [x] T1.16 Rules: types
 `type-compat.ts` (RULES.md list; same type = no finding; what each Prisma scalar covers, `DateTime` up to `timestamp(3)`), RG-DB-006, RG-DB-007 (RISKY), RG-DB-008 (UNSAFE: unknown pair, `USING`, unresolved base type). Scenarios `narrow-varchar`, `widen-int-to-bigint`, `widen-varchar`, `unknown-type-change`.
 
-### [ ] T1.17 Normalizer, part 3 (constraints, indexes, enums, data)
-- **Goal:** `ADD CONSTRAINT` (unique, primary key, check, FK), `DROP CONSTRAINT`,
-  `CREATE [UNIQUE] INDEX`, `DROP INDEX`, `ALTER INDEX … RENAME`, `RENAME CONSTRAINT`,
-  `CREATE TYPE … AS ENUM`, `ALTER TYPE … ADD VALUE`, `ALTER TYPE … RENAME TO`, `DROP TYPE`, `UPDATE`,
-  `DELETE`, `TRUNCATE`.
-- **Files:** more files in `packages/db/src/sql/normalizers/` + tests
-- **Done when:** real `prisma migrate diff` output for each case normalizes correctly.
+### [x] T1.17 Normalizer, part 3 (constraints, indexes, enums, data)
+New adapters `create-index`, `enums`, `data`; `drop`, `rename` and `alter-table` extended. Constraint rename → `RenameIndex`; unique expression index, `RENAME VALUE`, exclusion constraint → `Unrecognized`. Tested on Prisma 7.10.1's output; Prisma never renames an enum in place (RULES.md §6).
 
 ### [ ] T1.18 Rules: constraints and enums
 - **Goal:** RG-DB-012 unique / primary key, RG-DB-013 check, RG-DB-014 foreign key,

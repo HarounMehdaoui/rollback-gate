@@ -46,6 +46,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   RG-DB-011 (database default dropped).
 - Type rules (T1.16): RG-DB-006 (narrowing), RG-DB-007 (widening beyond base's Prisma type) and
   RG-DB-008 (unknown type change, UNSAFE), from an explicit list of known widenings.
+- Normalizer, part 3 (T1.17): constraints, indexes, enums and data statements (`UPDATE`, `DELETE`,
+  `TRUNCATE`) become changes, checked against Prisma 7.10.1's real output.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

@@ -19,6 +19,16 @@ export function strings(nodes: readonly Node[] | undefined): string[] {
   );
 }
 
+/**
+ * An object name from its parts: `["User"]` or `["public", "User"]`. Any other schema isn't modelled
+ * in Phase 1, so it gives `null` (the caller marks the statement Unrecognized).
+ */
+export function publicName(parts: readonly string[]): string | null {
+  if (parts.length === 1) return parts[0] ?? null;
+  if (parts.length === 2 && parts[0] === 'public') return parts[1] ?? null;
+  return null;
+}
+
 /** The fail-closed answer for SQL that parsed but that no normalizer models (RG-DB-022, RISKY). */
 export function unrecognized(sql: string): Change {
   return { kind: 'Unrecognized', sql };

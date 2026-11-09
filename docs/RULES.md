@@ -506,3 +506,8 @@ Rerun the lab when the supported Prisma version changes.
 - Removing `@default(autoincrement())` emits `DROP SEQUENCE "";`, an empty name that Postgres's parser
   rejects (`zero-length delimited identifier`). Such a migration is RG-DB-021 (UNSAFE), and it would
   fail to deploy too.
+- Constraints, indexes and enums (T1.17): `@unique` / `@@unique` become `CREATE UNIQUE INDEX`, `@@index`
+  `CREATE INDEX`, a primary key change `DROP CONSTRAINT …, ADD CONSTRAINT … PRIMARY KEY`, and a foreign
+  key `ADD CONSTRAINT … FOREIGN KEY`. An enum rename (`@@map`) is never `ALTER TYPE … RENAME`: Prisma
+  creates the new type, drops and re-adds the column, and drops the old type (RG-DB-002 / RG-DB-005);
+  RG-DB-017 catches hand-written renames.

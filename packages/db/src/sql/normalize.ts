@@ -2,8 +2,11 @@ import type { Change, SourcedChange } from '@rollbackgate/core';
 import type { Node } from 'libpg-query';
 
 import { normalizeAlterTable } from './normalizers/alter-table.js';
+import { normalizeCreateIndex } from './normalizers/create-index.js';
 import { normalizeCreateTable } from './normalizers/create-table.js';
+import { normalizeDelete, normalizeTruncate, normalizeUpdate } from './normalizers/data.js';
 import { normalizeDrop } from './normalizers/drop.js';
+import { normalizeAlterEnum, normalizeCreateEnum } from './normalizers/enums.js';
 import { unrecognized } from './normalizers/names.js';
 import { normalizeRename } from './normalizers/rename.js';
 import type { ParsedStatement } from './parse-sql.js';
@@ -31,6 +34,12 @@ export function normalizeStatement(node: Node, sql: string): Change[] {
   if ('DropStmt' in node) return normalizeDrop(node.DropStmt, sql);
   if ('AlterTableStmt' in node) return normalizeAlterTable(node.AlterTableStmt, sql);
   if ('RenameStmt' in node) return normalizeRename(node.RenameStmt, sql);
+  if ('IndexStmt' in node) return normalizeCreateIndex(node.IndexStmt, sql);
+  if ('CreateEnumStmt' in node) return normalizeCreateEnum(node.CreateEnumStmt, sql);
+  if ('AlterEnumStmt' in node) return normalizeAlterEnum(node.AlterEnumStmt, sql);
+  if ('UpdateStmt' in node) return normalizeUpdate(node.UpdateStmt, sql);
+  if ('DeleteStmt' in node) return normalizeDelete(node.DeleteStmt, sql);
+  if ('TruncateStmt' in node) return normalizeTruncate(node.TruncateStmt, sql);
   // Prisma wraps some migrations in a transaction; the wrapper changes nothing by itself.
   if ('TransactionStmt' in node) {
     const kind = node.TransactionStmt.kind;
