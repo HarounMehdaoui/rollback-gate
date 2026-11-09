@@ -142,9 +142,9 @@ describe('normalizeMigration', () => {
       ]);
     });
 
-    it('marks a DROP of something other than a table as Unrecognized (until T1.17)', () => {
-      expect(changesOf('DROP INDEX "User_email_key";')).toEqual([
-        { kind: 'Unrecognized', sql: 'DROP INDEX "User_email_key"' },
+    it('marks a DROP of an object it does not model as Unrecognized', () => {
+      expect(changesOf('DROP SEQUENCE "User_id_seq";')).toEqual([
+        { kind: 'Unrecognized', sql: 'DROP SEQUENCE "User_id_seq"' },
       ]);
     });
 

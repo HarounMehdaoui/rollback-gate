@@ -24,15 +24,17 @@ export function normalizeAlterTable(stmt: AlterTableStmt, sql: string): Change[]
 }
 
 // Plain ifs, not a switch: Postgres has ~70 ALTER TABLE action types and only a few are modelled;
-// every other one falls through to `null` (unrecognized). Constraints come in T1.17.
+// every other one falls through to `null` (unrecognized).
 function normalizeCmd(table: string, cmd: AlterTableCmd): Change[] | null {
   if (cmd.subtype === 'AT_AddColumn') {
     return cmd.def !== undefined && 'ColumnDef' in cmd.def
       ? addColumn(table, cmd.def.ColumnDef)
       : null;
   }
+  if (cmd.subtype === 'AT_AddConstraint') return addConstraint(table, cmd);
   const column = cmd.name;
   if (column === undefined) return null;
+  if (cmd.subtype === 'AT_DropConstraint') return [{ kind: 'DropConstraint', table, name: column }];
   if (cmd.subtype === 'AT_DropColumn') return [{ kind: 'DropColumn', table, column }];
   if (cmd.subtype === 'AT_SetNotNull') return [{ kind: 'SetNotNull', table, column }];
   if (cmd.subtype === 'AT_DropNotNull') return [{ kind: 'DropNotNull', table, column }];
@@ -42,6 +44,25 @@ function normalizeCmd(table: string, cmd: AlterTableCmd): Change[] | null {
   }
   if (cmd.subtype === 'AT_AlterColumnType') return alterColumnType(table, column, cmd);
   return null;
+}
+
+// ADD CONSTRAINT carries no column `name`, so it's handled before the column actions.
+function addConstraint(table: string, cmd: AlterTableCmd): Change[] | null {
+  if (cmd.def === undefined || !('Constraint' in cmd.def)) return null;
+  const c = cmd.def.Constraint;
+  const constraint = constraintTypes[c.contype ?? ''];
+  if (constraint === undefined) return null;
+  // A foreign key lists its own columns in fk_attrs; unique and primary keys in keys; a CHECK has none.
+  const columns = strings(c.contype === 'CONSTR_FOREIGN' ? c.fk_attrs : c.keys);
+  return [
+    {
+      kind: 'AddConstraint',
+      table,
+      constraint,
+      columns,
+      ...(c.conname === undefined ? {} : { name: c.conname }),
+    },
+  ];
 }
 
 // The old type isn't in the SQL: the type rules take it from base's used set (T1.16).
@@ -65,7 +86,7 @@ const serialTypes = new Set([
 ]);
 const notNullConstraints = new Set(['CONSTR_NOTNULL', 'CONSTR_PRIMARY', 'CONSTR_IDENTITY']);
 const defaultConstraints = new Set(['CONSTR_DEFAULT', 'CONSTR_IDENTITY', 'CONSTR_GENERATED']);
-const inlineConstraints: Readonly<Record<string, ConstraintType>> = {
+const constraintTypes: Readonly<Record<string, ConstraintType>> = {
   CONSTR_UNIQUE: 'unique',
   CONSTR_PRIMARY: 'primaryKey',
   CONSTR_CHECK: 'check',
@@ -96,7 +117,7 @@ function addColumn(table: string, def: ColumnDef): Change[] | null {
 
 // `ADD COLUMN x … UNIQUE` also adds a constraint; keep it visible for the constraint rules (T1.18).
 function inlineConstraint(table: string, column: string, c: Constraint): Change[] {
-  const constraint = inlineConstraints[c.contype ?? ''];
+  const constraint = constraintTypes[c.contype ?? ''];
   if (constraint === undefined) return [];
   return [
     {
