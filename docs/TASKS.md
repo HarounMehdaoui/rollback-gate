@@ -65,7 +65,7 @@ RG-DB-009 and RG-DB-010 (RISKY, by base's optionality), RG-DB-011 (`autoincremen
 ### [x] T1.16 Rules: types
 `type-compat.ts` (RULES.md list; same type = no finding; what each Prisma scalar covers, `DateTime` up to `timestamp(3)`), RG-DB-006, RG-DB-007 (RISKY), RG-DB-008 (UNSAFE: unknown pair, `USING`, unresolved base type). Scenarios `narrow-varchar`, `widen-int-to-bigint`, `widen-varchar`, `unknown-type-change`.
 
-### [ ] T1.17 Normalizer, part 3 (constraints, indexes, enums, data)
+### [~] T1.17 Normalizer, part 3 (constraints, indexes, enums, data)
 - **Goal:** `ADD CONSTRAINT` (unique, primary key, check, FK), `DROP CONSTRAINT`,
   `CREATE [UNIQUE] INDEX`, `DROP INDEX`, `ALTER INDEX … RENAME`, `RENAME CONSTRAINT`,
   `CREATE TYPE … AS ENUM`, `ALTER TYPE … ADD VALUE`, `ALTER TYPE … RENAME TO`, `DROP TYPE`, `UPDATE`,
