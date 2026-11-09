@@ -1,0 +1,20 @@
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  email String @unique
+  role  Role   @default(USER)
+}
+
+model Post {
+  id       Int @id @default(autoincrement())
+  authorId Int
+}
