@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { computeVerdict } from '@rollbackgate/core';
+import { analyzeDb, initSqlParser } from '@rollbackgate/db';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { loadSnapshotFromDir } from '../src/load-snapshot-dir.js';
 import { listScenarios, readExpected } from './scenario-files.js';
@@ -10,28 +12,34 @@ import { listScenarios, readExpected } from './scenario-files.js';
 const scenariosRoot = fileURLToPath(new URL('../../../scenarios/', import.meta.url));
 const scenarios = await listScenarios(scenariosRoot);
 
+beforeAll(async () => {
+  await initSqlParser();
+});
+
 describe('scenario runner', () => {
   it('finds the _smoke fixture', () => {
     expect(scenarios).toContainEqual(expect.objectContaining({ name: '_smoke', isFixture: true }));
   });
 });
 
-describe.each(scenarios)('scenario $name', ({ path, isFixture }) => {
+describe.each(scenarios)('scenario $name', ({ path }) => {
   it('has a valid expected.json', async () => {
     await expect(readExpected(path)).resolves.toBeDefined();
   });
 
-  it('loads base and head', async () => {
-    const [base, head] = await Promise.all([
+  // Only the fields in expected.json are compared, so reason and fix wording can change freely.
+  it('gives the expected verdict and findings', async () => {
+    const [base, head, expected] = await Promise.all([
       loadSnapshotFromDir(join(path, 'base')),
       loadSnapshotFromDir(join(path, 'head')),
+      readExpected(path),
     ]);
 
-    expect(base.prismaSchema).not.toBe('');
-    expect(head.prismaSchema).not.toBe('');
-  });
+    const { verdict, findings } = computeVerdict(analyzeDb(base, head));
 
-  if (!isFixture) {
-    it.todo('matches expected.json (needs analyzeDb, T1.11)');
-  }
+    expect({
+      verdict,
+      findings: findings.map(({ ruleId, severity, target }) => ({ ruleId, severity, target })),
+    }).toEqual(expected);
+  });
 });
