@@ -71,7 +71,7 @@ New adapters `create-index`, `enums`, `data`; `drop`, `rename` and `alter-table`
 ### [x] T1.18 Rules: constraints and enums
 RG-DB-012, 013, 014, 015, 023 (RISKY) and RG-DB-017 (UNSAFE); RG-DB-023 looks the dropped name up in `usedSet.uniqueIndexes` (same table for `DROP CONSTRAINT`). One scenario each.
 
-### [ ] T1.19 Rules: data changes
+### [~] T1.19 Rules: data changes
 - **Goal:** RG-DB-018 rows updated (with the backfill exception), RG-DB-019 rows deleted.
 - **Files:** one rule file each + tests + scenarios `backfill-new-column`, `update-used-column`,
   `delete-rows`
