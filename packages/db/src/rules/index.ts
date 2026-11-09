@@ -14,6 +14,8 @@ import { uniqueIndexDroppedRule } from './unique-index-dropped.js';
 import { renameColumnRule } from './rename-column.js';
 import { renameTableRule } from './rename-table.js';
 import { requiredColumnAddedRule } from './required-column-added.js';
+import { rowsDeletedRule } from './rows-deleted.js';
+import { rowsUpdatedRule } from './rows-updated.js';
 import { setNotNullRule } from './set-not-null.js';
 import { typeNarrowingRule } from './type-narrowing.js';
 import { typeWideningRule } from './type-widening.js';
@@ -40,6 +42,8 @@ export const dbRules: readonly Rule[] = [
   uniqueIndexDroppedRule,
   enumValueAddedRule,
   enumRenamedRule,
+  rowsUpdatedRule,
+  rowsDeletedRule,
   editedMigrationRule,
   unparsableSqlRule,
   unrecognizedStatementRule,

@@ -71,11 +71,8 @@ New adapters `create-index`, `enums`, `data`; `drop`, `rename` and `alter-table`
 ### [x] T1.18 Rules: constraints and enums
 RG-DB-012, 013, 014, 015, 023 (RISKY) and RG-DB-017 (UNSAFE); RG-DB-023 looks the dropped name up in `usedSet.uniqueIndexes` (same table for `DROP CONSTRAINT`). One scenario each.
 
-### [ ] T1.19 Rules: data changes
-- **Goal:** RG-DB-018 rows updated (with the backfill exception), RG-DB-019 rows deleted.
-- **Files:** one rule file each + tests + scenarios `backfill-new-column`, `update-used-column`,
-  `delete-rows`
-- **Done when:** the backfill exception has its own scenario (SAFE).
+### [x] T1.19 Rules: data changes
+RG-DB-018 and RG-DB-019 (RISKY); the backfill exception falls out of the used set. Scenarios `backfill-new-column` (SAFE), `update-used-column`, `delete-rows`.
 
 ### [ ] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
 - **Goal:** recognize Prisma's enum recreate sequence and replace its statements with one
