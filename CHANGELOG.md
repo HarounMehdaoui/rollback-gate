@@ -48,6 +48,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   RG-DB-008 (unknown type change, UNSAFE), from an explicit list of known widenings.
 - Normalizer, part 3 (T1.17): constraints, indexes, enums and data statements (`UPDATE`, `DELETE`,
   `TRUNCATE`) become changes, checked against Prisma 7.10.1's real output.
+- Constraint and enum rules (T1.18): RG-DB-012 (unique), 013 (CHECK), 014 (foreign key), 015 (enum
+  value added), 023 (unique index dropped) are RISKY; RG-DB-017 (enum renamed) is UNSAFE.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
