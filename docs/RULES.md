@@ -493,3 +493,10 @@ Rerun the lab when the supported Prisma version changes.
 - After a column with `dbgenerated()`, a later `migrate dev` can emit a redundant
   `ALTER COLUMN … SET DEFAULT` for it. Harmless: `SetDefault` has no rule.
 - The Prisma 7 client queries with schema-qualified names (`"public"."Item"`).
+- Column alterations (T1.14, `migrate diff --from-schema --to-schema`): a type change is
+  `ALTER COLUMN … SET DATA TYPE …` without `USING`; a change Postgres can't cast implicitly
+  (`String` → `Int`) becomes `DROP COLUMN` + `ADD COLUMN` instead (RG-DB-002 / RG-DB-005). Several
+  alterations on one table come as one multi-action `ALTER TABLE`.
+- Removing `@default(autoincrement())` emits `DROP SEQUENCE "";`, an empty name that Postgres's parser
+  rejects (`zero-length delimited identifier`). Such a migration is RG-DB-021 (UNSAFE), and it would
+  fail to deploy too.

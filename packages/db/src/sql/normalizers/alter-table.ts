@@ -2,6 +2,7 @@ import type { Change, ConstraintType } from '@rollbackgate/core';
 import type { AlterTableCmd, AlterTableStmt, ColumnDef, Constraint } from 'libpg-query';
 
 import { publicTable, strings, unrecognized } from './names.js';
+import { postgresTypeName } from './type-name.js';
 
 /**
  * `ALTER TABLE` with one or more actions. Prisma's rename is a single statement
@@ -23,16 +24,35 @@ export function normalizeAlterTable(stmt: AlterTableStmt, sql: string): Change[]
 }
 
 // Plain ifs, not a switch: Postgres has ~70 ALTER TABLE action types and only a few are modelled;
-// every other one falls through to `null` (unrecognized). Column alterations come in T1.14,
-// constraints in T1.17.
+// every other one falls through to `null` (unrecognized). Constraints come in T1.17.
 function normalizeCmd(table: string, cmd: AlterTableCmd): Change[] | null {
-  if (cmd.subtype === 'AT_DropColumn') {
-    return cmd.name === undefined ? null : [{ kind: 'DropColumn', table, column: cmd.name }];
+  if (cmd.subtype === 'AT_AddColumn') {
+    return cmd.def !== undefined && 'ColumnDef' in cmd.def
+      ? addColumn(table, cmd.def.ColumnDef)
+      : null;
   }
-  if (cmd.subtype === 'AT_AddColumn' && cmd.def !== undefined && 'ColumnDef' in cmd.def) {
-    return addColumn(table, cmd.def.ColumnDef);
+  const column = cmd.name;
+  if (column === undefined) return null;
+  if (cmd.subtype === 'AT_DropColumn') return [{ kind: 'DropColumn', table, column }];
+  if (cmd.subtype === 'AT_SetNotNull') return [{ kind: 'SetNotNull', table, column }];
+  if (cmd.subtype === 'AT_DropNotNull') return [{ kind: 'DropNotNull', table, column }];
+  // SET DEFAULT carries the expression in `def`; DROP DEFAULT has none.
+  if (cmd.subtype === 'AT_ColumnDefault') {
+    return [{ kind: cmd.def === undefined ? 'DropDefault' : 'SetDefault', table, column }];
   }
+  if (cmd.subtype === 'AT_AlterColumnType') return alterColumnType(table, column, cmd);
   return null;
+}
+
+// The old type isn't in the SQL: the type rules take it from base's used set (T1.16).
+function alterColumnType(table: string, column: string, cmd: AlterTableCmd): Change[] | null {
+  const def = cmd.def !== undefined && 'ColumnDef' in cmd.def ? cmd.def.ColumnDef : undefined;
+  const toType = postgresTypeName(def?.typeName);
+  if (toType === null) return null;
+  // `USING expr` is stored as the column definition's raw_default.
+  return [
+    { kind: 'AlterColumnType', table, column, toType, hasUsing: def?.raw_default !== undefined },
+  ];
 }
 
 const serialTypes = new Set([

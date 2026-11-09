@@ -40,6 +40,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   (unparsable SQL) are UNSAFE; RG-DB-022 (statement not modelled) is RISKY.
 - Rename and required-column rules (T1.13): RG-DB-003 (table renamed), RG-DB-004 (column renamed) and
   RG-DB-005 (NOT NULL column without default added), UNSAFE when base uses the table.
+- Normalizer, part 2 (T1.14): column type, NOT NULL and default alterations become changes, checked
+  against Prisma 7.10.1's real output.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

@@ -56,11 +56,8 @@ RG-DB-020 (UNSAFE, target = migration name), RG-DB-021 (UNSAFE, reason quotes th
 ### [x] T1.13 Rules: renames and required columns
 RG-DB-003, RG-DB-004, RG-DB-005 (UNSAFE). Scenarios `rename-used-table`, `rename-used-column`, `add-required-column`, and `prisma-field-rename` (Prisma's DROP + ADD → RG-DB-002 + RG-DB-005).
 
-### [ ] T1.14 Normalizer, part 2 (column alterations)
-- **Goal:** `ALTER COLUMN … TYPE` (with/without `USING`), `SET/DROP NOT NULL`, `SET/DROP DEFAULT`.
-- **Files:** more files in `packages/db/src/sql/normalizers/` + tests
-- **Done when:** real `prisma migrate diff` output for each case normalizes correctly (copied into
-  fixtures).
+### [x] T1.14 Normalizer, part 2 (column alterations)
+`AlterColumnType` (type spelled like the used set: `int4`, `varchar(50)`; `hasUsing`), `SetNotNull`, `DropNotNull`, `SetDefault`, `DropDefault`, tested on Prisma 7.10.1's verbatim `migrate diff` output. Prisma's SQL for removing `autoincrement()` is unparsable (RULES.md §6).
 
 ### [ ] T1.15 Rules: nullability and defaults
 - **Goal:** RG-DB-009 set NOT NULL, RG-DB-010 drop NOT NULL, RG-DB-011 drop default.
