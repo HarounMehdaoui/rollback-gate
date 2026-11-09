@@ -38,12 +38,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.07 SQL parser wrapper
 `parseSql` (libpg-query, ADR-0005) with statement index, character offset and text; invalid SQL is a result with its offset; `initSqlParser` loads the WASM once, and parsing before it throws. Byte offsets converted to string positions.
 
-### [~] T1.08 Migration history diff
-- **Goal:** `diffMigrations(base, head) → { newMigrations, changes }`. New = in head, not in base.
-  Same name with a different sha256 → `EditedMigration` (`modified`); in base but missing from head →
-  `EditedMigration` (`removed`). Both have source `{ kind: 'migration' }`.
-- **Files:** `packages/db/src/migrations/diff-migrations.ts` + tests
-- **Done when:** tests cover new, unchanged, modified, removed, and the order of new migrations.
+### [x] T1.08 Migration history diff
+`diffMigrations`: new migrations in head's order (including one merged late), `EditedMigration` (`modified` / `removed`) in base's order, source `{ kind: 'migration' }`.
 
 ### [ ] T1.09 Normalizer, part 1 (tables and columns)
 - **Goal:** AST → `SourcedChange[]` for `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE … DROP COLUMN`,
