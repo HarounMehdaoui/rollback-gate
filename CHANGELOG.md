@@ -5,6 +5,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-09
+
+Phase 1: the database analyzer and the `check` command.
+
 ### Added
 - Project specification, architecture, roadmap, task plan and development workflow.
 - Rules catalogue (`docs/RULES.md`): 22 DB rules, reserved config and rehearsal rules, severity and
@@ -56,6 +60,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   (RISKY), and any partial sequence stays UNSAFE.
 - `check` command (T1.21): `rollbackgate check --base <ref> --head <ref|worktree> [--format text|json]`
   reads both releases from git (or the working tree), prints the verdict and exits 0, 1 or 2.
+- Rename walkthrough (T1.22): the 4-release rename from RULES.md §5 as scenarios (SAFE, RISKY, SAFE,
+  SAFE), plus the merged retire-and-contract shortcut (UNSAFE); README example and quick start match
+  the real command.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

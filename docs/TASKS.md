@@ -80,10 +80,8 @@ ADR-0006: recognizer on each migration's normalized changes, before the rules; e
 ### [x] T1.21 `check` command
 `main(argv, io)` → exit code; `bin.ts`; `commands/check.ts`; `load-snapshot-git.ts` (`git show` / `ls-tree` via `execFile`, refs resolved to a commit, `-…` refused); shared `hash-sql.ts`; text and JSON formatters. Exit codes 0 / 1 / 2 tested end to end on temporary git repos, including bad refs and an unusable base schema.
 
-### [ ] T1.22 Rename walkthrough + release v0.1.0
-- **Goal:** scenarios `rename-r1-expand` … `rename-r4-contract` give SAFE, RISKY, SAFE, SAFE
-  (RULES.md §5). README example matches real output. CHANGELOG entry. Tag `v0.1.0`.
-- **Done when:** a fresh clone can run the quick start from the README.
+### [x] T1.22 Rename walkthrough + release v0.1.0
+Scenarios `rename-r1-expand` … `rename-r4-contract` (SAFE, RISKY, SAFE, SAFE) and `rename-merged-retire-contract` (UNSAFE); README example is real output; quick start checked on a fresh clone; CHANGELOG `[0.1.0]`; tag `v0.1.0`.
 
 ---
 
