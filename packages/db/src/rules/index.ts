@@ -9,6 +9,9 @@ import { renameColumnRule } from './rename-column.js';
 import { renameTableRule } from './rename-table.js';
 import { requiredColumnAddedRule } from './required-column-added.js';
 import { setNotNullRule } from './set-not-null.js';
+import { typeNarrowingRule } from './type-narrowing.js';
+import { typeWideningRule } from './type-widening.js';
+import { unknownTypeChangeRule } from './unknown-type-change.js';
 import { unparsableSqlRule } from './unparsable-sql.js';
 import { unrecognizedStatementRule } from './unrecognized-statement.js';
 
@@ -19,6 +22,9 @@ export const dbRules: readonly Rule[] = [
   renameTableRule,
   renameColumnRule,
   requiredColumnAddedRule,
+  typeNarrowingRule,
+  typeWideningRule,
+  unknownTypeChangeRule,
   setNotNullRule,
   dropNotNullRule,
   dropDefaultRule,
