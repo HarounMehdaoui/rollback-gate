@@ -63,6 +63,8 @@ Phase 1: the database analyzer and the `check` command.
 - Rename walkthrough (T1.22): the 4-release rename from RULES.md §5 as scenarios (SAFE, RISKY, SAFE,
   SAFE), plus the merged retire-and-contract shortcut (UNSAFE); README example and quick start match
   the real command.
+- ADR-0007 (unusable base schema is a tool error; used set keyed by database name) and ADR-0008 (type
+  change classification), recording decisions made while building Phase 1.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
