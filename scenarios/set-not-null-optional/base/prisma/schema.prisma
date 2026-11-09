@@ -1,0 +1,10 @@
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  name     String
+  nickname String?
+  token    String  @default(dbgenerated("gen_random_uuid()::text"))
+}
