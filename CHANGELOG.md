@@ -44,6 +44,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   against Prisma 7.10.1's real output.
 - Nullability and default rules (T1.15): RG-DB-009 (NOT NULL set), RG-DB-010 (NOT NULL dropped) and
   RG-DB-011 (database default dropped).
+- Type rules (T1.16): RG-DB-006 (narrowing), RG-DB-007 (widening beyond base's Prisma type) and
+  RG-DB-008 (unknown type change, UNSAFE), from an explicit list of known widenings.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
