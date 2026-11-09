@@ -47,14 +47,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.10 Rule engine + drop rules
 `runRules` (filters by `appliesTo`, adds `ruleId` and `source`), `dbRules`, RG-DB-001 and RG-DB-002, tested on used sets built from real schemas (`@ignore`, `@@ignore`, unknown names).
 
-### [~] T1.11 `analyzeDb` + first scenarios
-- **Goal:** pure `analyzeDb(base, head): Finding[]` in `db`: used set → history diff → parse →
-  normalize (parse failure → `Unparsable`) → rules. The scenario runner calls it directly.
-- **Files:** `packages/db/src/analyze-db.ts` + test, `packages/cli/test/scenarios.test.ts` (wired),
-  `scenarios/drop-used-column/`, `scenarios/drop-ignored-column/`
-- **Done when:** both scenarios pass; `_smoke` passes as SAFE. From here on, every rule task ends with
-  green scenarios.
-- **Learn:** composing pure functions into a pipeline.
+### [x] T1.11 `analyzeDb` + first scenarios
+`analyzeDb` (used set → history diff → parse → normalize → rules); unusable base schema throws `UnusableBaseSchemaError` (exit 2). The runner compares every scenario; `drop-used-column`, `drop-ignored-column` and `_smoke` pass. Until T1.12, `Unparsable`, `Unrecognized` and `EditedMigration` changes have no rule.
 
 ### [ ] T1.12 Rules: fail-closed and history
 - **Goal:** RG-DB-020 edited/removed migration, RG-DB-021 unparsable SQL, RG-DB-022 unrecognized

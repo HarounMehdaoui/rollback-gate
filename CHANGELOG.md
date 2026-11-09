@@ -34,6 +34,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   not modelled, or outside the `public` schema, becomes `Unrecognized`.
 - Rule engine and first rules (T1.10): `runRules`; RG-DB-001 (table dropped) and RG-DB-002 (column
   dropped), UNSAFE when base uses them.
+- DB analyzer (T1.11): `analyzeDb` runs the whole pipeline on two snapshots; the scenario runner checks
+  every scenario end to end (`drop-used-column`, `drop-ignored-column`).
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
