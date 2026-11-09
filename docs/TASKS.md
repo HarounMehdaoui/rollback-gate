@@ -53,9 +53,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.12 Rules: fail-closed and history
 RG-DB-020 (UNSAFE, target = migration name), RG-DB-021 (UNSAFE, reason quotes the parser error), RG-DB-022 (RISKY, target = statement on one line, max 80 characters). Scenarios `edited-migration`, `unparsable-sql`, `unrecognized-statement`; a mixed migration reports both findings.
 
-### [ ] T1.13 Rules: renames and required columns
-- **Goal:** RG-DB-003 rename table, RG-DB-004 rename column, RG-DB-005 required column added.
-- **Files:** one rule file each + tests + one scenario each
+### [x] T1.13 Rules: renames and required columns
+RG-DB-003, RG-DB-004, RG-DB-005 (UNSAFE). Scenarios `rename-used-table`, `rename-used-column`, `add-required-column`, and `prisma-field-rename` (Prisma's DROP + ADD → RG-DB-002 + RG-DB-005).
 
 ### [ ] T1.14 Normalizer, part 2 (column alterations)
 - **Goal:** `ALTER COLUMN … TYPE` (with/without `USING`), `SET/DROP NOT NULL`, `SET/DROP DEFAULT`.
