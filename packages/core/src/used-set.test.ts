@@ -40,7 +40,7 @@ describe('UsedColumn', () => {
 
 describe('UsedSet', () => {
   it('makes lookups return `undefined` for tables base does not use', () => {
-    const usedSet: UsedSet = { tables: new Map(), enums: new Map() };
+    const usedSet: UsedSet = { tables: new Map(), enums: new Map(), uniqueIndexes: new Map() };
 
     expectTypeOf(usedSet.tables.get('User')).toEqualTypeOf<UsedTable | undefined>();
     expect(usedSet.tables.get('User')).toBeUndefined();
@@ -49,5 +49,6 @@ describe('UsedSet', () => {
   it('cannot be modified by a rule', () => {
     expectTypeOf<UsedSet['tables']>().not.toHaveProperty('set');
     expectTypeOf<UsedTable['columns']>().not.toHaveProperty('delete');
+    expectTypeOf<UsedSet['uniqueIndexes']>().not.toHaveProperty('set');
   });
 });

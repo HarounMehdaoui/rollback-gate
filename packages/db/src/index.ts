@@ -1,2 +1,3 @@
-// Placeholder entry point so the workspace builds; real exports start in Phase 1 tasks.
 export const packageName = '@rollbackgate/db';
+
+export { buildUsedSet, type UsedSetResult } from './prisma/used-set.js';

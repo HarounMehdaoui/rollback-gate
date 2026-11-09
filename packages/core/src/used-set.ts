@@ -28,8 +28,25 @@ export interface UsedEnum {
   readonly values: readonly string[];
 }
 
+/**
+ * A unique index or primary key on a used table. Base's `upsert` relies on it (`ON CONFLICT`), so
+ * RG-DB-023 needs to recognize it when a migration drops it by name.
+ */
+export interface UsedUniqueIndex {
+  /** Database name of the table. */
+  readonly table: string;
+  /** Database names of the indexed columns, in index order. */
+  readonly columns: readonly string[];
+  readonly isPrimaryKey: boolean;
+}
+
 /** Everything base's code can touch, by database name. */
 export interface UsedSet {
   readonly tables: ReadonlyMap<string, UsedTable>;
   readonly enums: ReadonlyMap<string, UsedEnum>;
+  /**
+   * By index name: `DROP INDEX` carries only the name, and Postgres index names are unique per
+   * schema (Phase 1 supports only `public`).
+   */
+  readonly uniqueIndexes: ReadonlyMap<string, UsedUniqueIndex>;
 }

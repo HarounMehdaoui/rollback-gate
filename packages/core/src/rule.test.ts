@@ -29,7 +29,9 @@ const userTable: UsedTable = {
     ],
   ]),
 };
-const ctx: RuleContext = { usedSet: { tables: new Map([['User', userTable]]), enums: new Map() } };
+const ctx: RuleContext = {
+  usedSet: { tables: new Map([['User', userTable]]), enums: new Map(), uniqueIndexes: new Map() },
+};
 
 describe('Rule', () => {
   it('receives the change already narrowed to the kinds in appliesTo', () => {
