@@ -78,7 +78,8 @@ Rules emit only `RISKY` or `UNSAFE` findings. When a change doesn't hurt base, t
   plus one scenario folder.
 - Test files are type-checked: they are part of each package's `tsc -b` build, so a type error in a
   test fails `pnpm build` (Vitest alone strips types without checking them). This is what makes
-  `@ts-expect-error` tests (for example, exhaustive `switch`) meaningful.
+  `@ts-expect-error` tests (for example, exhaustive `switch`) meaningful. Vitest's own typecheck mode
+  was rejected: it would be a second, separately configured checker.
 - Bugs get a failing test first, then the fix.
 
 ## Formatting and linting

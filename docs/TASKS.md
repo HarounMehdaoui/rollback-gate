@@ -3,7 +3,8 @@
 One task = one branch = one PR, roughly half a day of work. A task is marked `[~]` when work on it
 starts and `[x]` in its own PR. Status: `[ ]` todo · `[~]` in progress · `[x]` done.
 
-Format for each task: **goal**, **files**, **done when**, **learn**.
+Format for each open task: **goal**, **files**, **done when**, **learn**. A finished task shrinks to
+one line: what it delivered, its PR, and where its decisions now live. The full text is in the PR.
 
 ---
 
@@ -14,81 +15,22 @@ first rule and `analyzeDb` (T1.10–T1.11), so every later rule task ends with g
 rule groups (T1.12–T1.20) → CLI (T1.21) → release (T1.22). Rule IDs and severities: `docs/RULES.md`.
 
 ### [x] T1.01 Bootstrap the monorepo
-- **Goal:** empty but working workspace with build, test, lint, format and CI.
-- **Files:** `package.json` (with `packageManager: pnpm@12.18.0` and `engines.node: >=26`),
-  `pnpm-workspace.yaml`, `.nvmrc` (`26`),
-  `tsconfig.base.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc`, `.prettierignore`,
-  `vitest.config.ts`, `.editorconfig`, `.github/workflows/ci.yml`, update `.gitignore`,
-  `packages/{core,db,cli}/package.json` + `tsconfig.json` + `src/index.ts` + one test
-- **Decision (D7): test files are part of `tsc -b`.** Why: Vitest strips types without checking them,
-  so without this a test with a type error still passes. One compiler and one command (`pnpm build`)
-  checks everything, and the T1.02 `@ts-expect-error` test only means something if tests are
-  type-checked. Vitest's typecheck mode would be a second, separately configured checker.
-- **Done when:**
-  - `pnpm build`, `pnpm test` (one dummy test per package), `pnpm lint`, `pnpm format` all work
-    locally and in CI
-  - Node 26 (current LTS) and pnpm 12.18.0 are pinned (`.nvmrc`, `engines`, `packageManager`) and CI
-    reads them from those files, not from hard-coded versions in the workflow
-  - the CI workflow's job is named `ci` (branch protection requires that name)
-  - ESLint is type-aware (needed for `switch-exhaustiveness-check`)
-  - a type error in a test file fails `pnpm build`
-  - purity rules work: importing `node:fs`, or using `process.env` or `Date.now()`, in `core` or `db`
-    fails `pnpm lint`; importing `@rollbackgate/cli` from `db` fails `pnpm lint` (checked by hand,
-    then removed)
-- **Learn:** pnpm workspaces, TS project references (`tsc -b`), ESLint flat config.
+pnpm workspace (`core`, `db`, `cli`), build/test/lint/format, `ci` workflow, Node 26 and pnpm pinned (initial commit). Decisions: ARCHITECTURE §2 (purity, enforcement), CONVENTIONS "Tests" (tests are part of `tsc -b`).
 
 ### [x] T1.02 Core domain types
-- **Goal:** `Severity`, `FindingSeverity`, `Snapshot`, `MigrationFile`, `UsedSet` (+ `UsedTable`,
-  `UsedColumn`, `UsedEnum`), `Change` (every kind in ARCHITECTURE §3), `SourcedChange`,
-  `FindingSource`, `Finding`, `Rule`, `RuleContext`, `Analyzer`, `Verdict`, `assertNever`.
-- **Files:** `packages/core/src/{severity,snapshot,used-set,change,finding,rule,rule-id,analyzer,verdict,assert-never}.ts`, `index.ts`
-- **Done when:** types compile; a test proves an exhaustive `switch` over `Change['kind']` fails to
-  compile if a kind is missing (`@ts-expect-error`).
-- **Learn:** discriminated unions, `never` exhaustiveness checks, `Exclude<>`.
+All core types and `assertNever` (#1). Shapes: ARCHITECTURE §3, `packages/core/src/`.
 
 ### [x] T1.03 Verdict engine
-- **Goal:** `computeVerdict(findings) → Verdict` (worst wins, no findings = SAFE, counts, stable sort).
-- **Files:** `packages/core/src/verdict-engine.ts` + `.test.ts`
-- **Done when:** tests cover the empty list (SAFE), mixed severities, sort order (UNSAFE first, then
-  source order), and sources of each kind (statement, migration, release).
-- **Learn:** writing tests first; pure functions.
+`computeVerdict`: worst wins, counts, fixed finding order (#2). Order: RULES.md §3.
 
 ### [x] T1.04 Snapshot loader + scenario runner
-- **Goal:** `loadSnapshotFromDir(dir) → Snapshot` (reads `prisma/schema.prisma` and
-  `prisma/migrations/*/migration.sql`, computes sha256), and one Vitest file that discovers
-  `scenarios/*/` and compares results with `expected.json`.
-- **Files:** `packages/cli/src/load-snapshot-dir.ts` + test, `scenarios/_smoke/{base,head,expected.json}`,
-  `packages/cli/test/{scenarios.test,scenario-files,scenario-files.test}.ts`, `packages/cli/test/tsconfig.json`
-- **Done when:** the loader is tested on `_smoke`; the runner discovers scenarios and marks them
-  `todo` until T1.11 gives it `analyzeDb`.
-- **Learn:** data-driven tests (`test.each`); keeping I/O at the edge (the loader is the only part
-  that touches files).
+`loadSnapshotFromDir` and the scenario runner with `_smoke`; scenarios stay `todo` until T1.11 (#3). Behaviour: ARCHITECTURE §5 step 1, `scenarios/README.md`.
 
 ### [x] T1.05a Prisma behaviour lab
-- **Goal:** replace guesses with evidence before any rule is built. A throwaway Prisma project under
-  `spikes/prisma-lab/` against Postgres in Docker answers all 12 ⚠️ items in `docs/RULES.md` §6
-  **by experiment**: generate migrations with `prisma migrate dev`, run queries, read the query log
-  and error messages. Record each answer and its evidence in §6, then adjust the affected rules and
-  remove their ⚠️ markers. Also confirm the chosen Prisma version runs on Node 26.
-- **Versions:** Prisma 7.10.1 (latest stable; 8.0 is still a release candidate), Postgres 18.6.
-- **Files:** `docs/RULES.md` (§6 + affected rules). `spikes/prisma-lab/` is committed on the branch
-  for the record but removed before the PR is merged.
-- **Done when:** every row in RULES.md §6 has an answer and evidence; no ⚠️ marker is left in RULES.md;
-  Prisma is confirmed on Node 26 (or the fallback to Node 24 is recorded).
-- **Learn:** how to run a technical spike, and why evidence beats documentation for edge-case behaviour.
+Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 / Node 26; new RG-DB-023 (#4). Answers and evidence: RULES.md §6; lab code in the PR's history.
 
 ### [x] T1.05b Spike + ADRs: Prisma schema parser and SQL parser
-- **Goal:** choose both parsers with evidence.
-  - **ADR-0004 Prisma schema parser:** try ≥ 2 candidates on a schema with `@map`, `@@map`,
-    `@ignore`, `@@ignore`, `@db.*` native types, `@default`s, enums and relations.
-  - **ADR-0005 SQL parser:** libpg-query native vs WASM build, which Postgres grammar version it
-    ships, sync vs async API, install and CI impact. Confirm it runs on Node 26; if not, fall back
-    to Node 24 (LTS), update T1.01's pins, and record why.
-- **Files:** `docs/adr/0004-prisma-schema-parser.md`, `docs/adr/0005-sql-parser.md` (throwaway spike
-  code stays on the branch, not merged)
-- **Done when:** both ADRs record options, test results, decision and consequences; the Node version
-  is confirmed for libpg-query.
-- **Learn:** comparing libraries on your own test cases instead of their READMEs.
+`@prisma/get-dmmf` and `libpg-query` chosen by trial; Node 26 confirmed (#5). ADR-0004, ADR-0005; spike code in the PR's history.
 
 ### [ ] T1.06 Prisma snapshot → UsedSet
 - **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`,
