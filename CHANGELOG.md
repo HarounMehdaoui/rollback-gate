@@ -36,6 +36,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   dropped), UNSAFE when base uses them.
 - DB analyzer (T1.11): `analyzeDb` runs the whole pipeline on two snapshots; the scenario runner checks
   every scenario end to end (`drop-used-column`, `drop-ignored-column`).
+- Fail-closed rules (T1.12): RG-DB-020 (applied migration edited or removed) and RG-DB-021
+  (unparsable SQL) are UNSAFE; RG-DB-022 (statement not modelled) is RISKY.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

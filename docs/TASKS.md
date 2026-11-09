@@ -50,13 +50,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.11 `analyzeDb` + first scenarios
 `analyzeDb` (used set → history diff → parse → normalize → rules); unusable base schema throws `UnusableBaseSchemaError` (exit 2). The runner compares every scenario; `drop-used-column`, `drop-ignored-column` and `_smoke` pass. Until T1.12, `Unparsable`, `Unrecognized` and `EditedMigration` changes have no rule.
 
-### [ ] T1.12 Rules: fail-closed and history
-- **Goal:** RG-DB-020 edited/removed migration, RG-DB-021 unparsable SQL, RG-DB-022 unrecognized
-  statement.
-- **Files:** one rule file each + tests + scenarios `edited-migration`, `unparsable-sql`,
-  `unrecognized-statement`
-- **Done when:** fail-closed behaviour has explicit tests, including a migration that mixes a valid
-  statement with an unrecognized one.
+### [x] T1.12 Rules: fail-closed and history
+RG-DB-020 (UNSAFE, target = migration name), RG-DB-021 (UNSAFE, reason quotes the parser error), RG-DB-022 (RISKY, target = statement on one line, max 80 characters). Scenarios `edited-migration`, `unparsable-sql`, `unrecognized-statement`; a mixed migration reports both findings.
 
 ### [ ] T1.13 Rules: renames and required columns
 - **Goal:** RG-DB-003 rename table, RG-DB-004 rename column, RG-DB-005 required column added.

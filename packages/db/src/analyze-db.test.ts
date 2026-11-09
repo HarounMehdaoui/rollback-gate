@@ -66,6 +66,29 @@ describe('analyzeDb', () => {
     expect(analyzeDb(baseIgnoring, head)).toEqual([]);
   });
 
+  it('reports both a used column drop and an unrecognized statement in the same migration', () => {
+    const head = snapshot(
+      schema(''),
+      init,
+      migration('2_mixed', 'CREATE EXTENSION "pgcrypto";\nALTER TABLE "User" DROP COLUMN "name";'),
+    );
+
+    expect(analyzeDb(base, head).map((f) => [f.ruleId, f.severity])).toEqual([
+      ['RG-DB-022', 'RISKY'],
+      ['RG-DB-002', 'UNSAFE'],
+    ]);
+  });
+
+  it('never returns no findings for a migration it can’t parse', () => {
+    const head = snapshot(
+      schema('  name String\n'),
+      init,
+      migration('2_bad', 'DROPP TABLE "User";'),
+    );
+
+    expect(analyzeDb(base, head).map((f) => f.ruleId)).toEqual(['RG-DB-021']);
+  });
+
   it('throws a tool error when base’s schema can’t be used, instead of returning no findings', () => {
     const head = snapshot(schema(''), migration('2_drop', 'DROP TABLE "User";'));
 
