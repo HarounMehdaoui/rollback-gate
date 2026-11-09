@@ -35,7 +35,7 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.06 Prisma snapshot → UsedSet
 `buildUsedSet` with Prisma's engine; unique indexes by name in `UsedSet`. Owner's decisions: unusable base schema = tool error (exit 2); native types in Postgres's spelling (`int4`, enum name, `null` if unknown); datasource read with the engine's `get_config`; models outside `public` rejected. ARCHITECTURE §3 and §5 step 3.
 
-### [ ] T1.07 SQL parser wrapper
+### [~] T1.07 SQL parser wrapper
 - **Goal:** `parseSql(sql) → { ok: true, statements } | { ok: false, error }` around libpg-query's
   `parseSync` (ADR-0005), plus the one-time async initialization the cli awaits before analyzing.
   Each statement keeps its position in the file.
