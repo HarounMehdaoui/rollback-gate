@@ -33,7 +33,7 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 `@prisma/get-dmmf` and `libpg-query` chosen by trial; Node 26 confirmed (#5). ADR-0004, ADR-0005; spike code in the PR's history.
 
 ### [x] T1.06 Prisma snapshot → UsedSet
-`buildUsedSet` with Prisma's engine; unique indexes by name in `UsedSet`. Owner's decisions: unusable base schema = tool error (exit 2); native types in Postgres's spelling (`int4`, enum name, `null` if unknown); datasource read with the engine's `get_config`; models outside `public` rejected. ARCHITECTURE §3 and §5 step 3.
+`buildUsedSet` with Prisma's engine; unique indexes by name in `UsedSet`. Decisions (ADR-0007): unusable base schema = tool error (exit 2); native types in Postgres's spelling (`int4`, enum name, `null` if unknown); datasource read with the engine's `get_config`; models outside `public` rejected. ARCHITECTURE §3 and §5 step 3.
 
 ### [x] T1.07 SQL parser wrapper
 `parseSql` (libpg-query, ADR-0005) with statement index, character offset and text; invalid SQL is a result with its offset; `initSqlParser` loads the WASM once, and parsing before it throws. Byte offsets converted to string positions.
@@ -63,7 +63,7 @@ RG-DB-003, RG-DB-004, RG-DB-005 (UNSAFE). Scenarios `rename-used-table`, `rename
 RG-DB-009 and RG-DB-010 (RISKY, by base's optionality), RG-DB-011 (`autoincrement()` / `dbgenerated()` only; UNSAFE if required, RISKY if optional). Scenarios `set-not-null-optional`, `drop-not-null-required`, `drop-database-default`.
 
 ### [x] T1.16 Rules: types
-`type-compat.ts` (RULES.md list; same type = no finding; what each Prisma scalar covers, `DateTime` up to `timestamp(3)`), RG-DB-006, RG-DB-007 (RISKY), RG-DB-008 (UNSAFE: unknown pair, `USING`, unresolved base type). Scenarios `narrow-varchar`, `widen-int-to-bigint`, `widen-varchar`, `unknown-type-change`.
+`type-compat.ts` (ADR-0008; RULES.md list; same type = no finding; what each Prisma scalar covers, `DateTime` up to `timestamp(3)`), RG-DB-006, RG-DB-007 (RISKY), RG-DB-008 (UNSAFE: unknown pair, `USING`, unresolved base type). Scenarios `narrow-varchar`, `widen-int-to-bigint`, `widen-varchar`, `unknown-type-change`.
 
 ### [x] T1.17 Normalizer, part 3 (constraints, indexes, enums, data)
 New adapters `create-index`, `enums`, `data`; `drop`, `rename` and `alter-table` extended. Constraint rename → `RenameIndex`; unique expression index, `RENAME VALUE`, exclusion constraint → `Unrecognized`. Tested on Prisma 7.10.1's output; Prisma never renames an enum in place (RULES.md §6).

@@ -21,7 +21,7 @@ Each phase ends with a git tag and a short demo you could show a reviewer.
   override from the PR that introduced it.
 - [ ] License (MIT vs Apache-2.0) — before first public release
 
-Resolved: Prisma schema parser (ADR-0004) · SQL parser (ADR-0005) · multi-statement patterns (ADR-0006) · severity principle, certain →
+Resolved: Prisma schema parser (ADR-0004) · SQL parser (ADR-0005) · multi-statement patterns (ADR-0006) · unusable base schema = tool error, used set by database name (ADR-0007) · type change classification (ADR-0008) · severity principle, certain →
 UNSAFE, possible → RISKY (RULES.md §3) · Prisma "verify" items answered by experiment (RULES.md §6) ·
 RG-DB-023 and RG-DB-011 on a nullable column are RISKY (RULES.md §4).
 
