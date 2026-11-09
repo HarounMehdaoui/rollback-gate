@@ -10,5 +10,5 @@ export type { Rule, RuleContext, RuleHit } from './rule.js';
 export type { RuleArea, RuleId } from './rule-id.js';
 export type { FindingSeverity, Severity } from './severity.js';
 export type { MigrationFile, Snapshot } from './snapshot.js';
-export type { UsedColumn, UsedEnum, UsedSet, UsedTable } from './used-set.js';
+export type { UsedColumn, UsedEnum, UsedSet, UsedTable, UsedUniqueIndex } from './used-set.js';
 export type { Verdict } from './verdict.js';
