@@ -5,6 +5,12 @@ import { dropDefaultRule } from './drop-default.js';
 import { dropNotNullRule } from './drop-not-null.js';
 import { dropTableRule } from './drop-table.js';
 import { editedMigrationRule } from './edited-migration.js';
+import { enumRenamedRule } from './enum-renamed.js';
+import { enumValueAddedRule } from './enum-value-added.js';
+import { newCheckRule } from './new-check.js';
+import { newForeignKeyRule } from './new-foreign-key.js';
+import { newUniqueRule } from './new-unique.js';
+import { uniqueIndexDroppedRule } from './unique-index-dropped.js';
 import { renameColumnRule } from './rename-column.js';
 import { renameTableRule } from './rename-table.js';
 import { requiredColumnAddedRule } from './required-column-added.js';
@@ -28,6 +34,12 @@ export const dbRules: readonly Rule[] = [
   setNotNullRule,
   dropNotNullRule,
   dropDefaultRule,
+  newUniqueRule,
+  newCheckRule,
+  newForeignKeyRule,
+  uniqueIndexDroppedRule,
+  enumValueAddedRule,
+  enumRenamedRule,
   editedMigrationRule,
   unparsableSqlRule,
   unrecognizedStatementRule,
