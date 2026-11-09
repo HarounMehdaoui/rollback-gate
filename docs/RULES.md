@@ -156,6 +156,12 @@ Proposed initial list. Each entry is a widening; the reverse direction is a narr
 - `numeric(p,s)` → `numeric(p',s)` with p' > p
 - `timestamp(p)` → `timestamp(p')` with p' > p
 
+In code (T1.16), types use Postgres's internal spelling (`int2`, `int4`, `int8`, `float4`, `float8`,
+`varchar(n)`, `numeric(p,s)`, `timestamp(p)`), the same as the used set. A change to the same type gives
+no finding. For RG-DB-007, each Prisma scalar covers: `Int` → `int2`, `int4`; `BigInt` → up to `int8`;
+`Float` → `float4`, `float8`; `Decimal` → `numeric`; `String` → `varchar`, `text`; `DateTime` →
+`timestamp(p)` with p ≤ 3 (a JavaScript `Date` keeps milliseconds only).
+
 Prisma's default native type for each scalar without `@db.*` (§6 row 2): `String` → `text`,
 `Int` → `integer`, `BigInt` → `bigint`, `Float` → `double precision`, `Decimal` → `decimal(65,30)`,
 `DateTime` → `timestamp(3)`, `Boolean` → `boolean`, `Json` → `jsonb`, `Bytes` → `bytea`.
