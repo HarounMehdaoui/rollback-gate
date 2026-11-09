@@ -54,6 +54,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   backfill of a column added in the same release is SAFE.
 - Enum value removal (T1.20): ADR-0006; Prisma's enum recreate sequence is recognized as RG-DB-016
   (RISKY), and any partial sequence stays UNSAFE.
+- `check` command (T1.21): `rollbackgate check --base <ref> --head <ref|worktree> [--format text|json]`
+  reads both releases from git (or the working tree), prints the verdict and exits 0, 1 or 2.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

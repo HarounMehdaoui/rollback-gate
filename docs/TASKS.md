@@ -77,14 +77,8 @@ RG-DB-018 and RG-DB-019 (RISKY); the backfill exception falls out of the used se
 ### [x] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
 ADR-0006: recognizer on each migration's normalized changes, before the rules; exact match or nothing (a partial match keeps RG-DB-008 + RG-DB-017). `sql/patterns/enum-recreate.ts`, RG-DB-016 (RISKY); scenario `remove-enum-value` on Prisma 7.10.1's real output gives exactly RG-DB-016.
 
-### [~] T1.21 `check` command
-- **Goal:** `rollbackgate check --base <ref> --head <ref|worktree> [--format text|json]`.
-  Loads snapshots from git (or the working tree via T1.04's loader), runs `analyzeDb`, computes the
-  verdict, prints, exits `0` (SAFE/RISKY), `1` (UNSAFE) or `2` (tool error).
-- **Files:** `packages/cli/src/{main,commands/check,load-snapshot-git,format-text,format-json}.ts` + tests
-- **Done when:** exit codes are tested, including `2` for a bad ref; text output matches the README
-  example's format.
-- **Learn:** keeping I/O at the edge; exit codes as a CI contract.
+### [x] T1.21 `check` command
+`main(argv, io)` → exit code; `bin.ts`; `commands/check.ts`; `load-snapshot-git.ts` (`git show` / `ls-tree` via `execFile`, refs resolved to a commit, `-…` refused); shared `hash-sql.ts`; text and JSON formatters. Exit codes 0 / 1 / 2 tested end to end on temporary git repos, including bad refs and an unusable base schema.
 
 ### [ ] T1.22 Rename walkthrough + release v0.1.0
 - **Goal:** scenarios `rename-r1-expand` … `rename-r4-contract` give SAFE, RISKY, SAFE, SAFE
