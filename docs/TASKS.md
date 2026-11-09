@@ -32,7 +32,7 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.05b Spike + ADRs: Prisma schema parser and SQL parser
 `@prisma/get-dmmf` and `libpg-query` chosen by trial; Node 26 confirmed (#5). ADR-0004, ADR-0005; spike code in the PR's history.
 
-### [ ] T1.06 Prisma snapshot → UsedSet
+### [~] T1.06 Prisma snapshot → UsedSet
 - **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`,
   read with `@prisma/get-dmmf` (ADR-0004). Each column records Prisma scalar, native type (`@db.*` or
   the scalar's default), optionality, list, default (rendered back to text) and enum; enum values by
