@@ -26,6 +26,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   (`libpg-query` for migration SQL), each chosen by running the candidates on our own cases.
 - Used set (T1.06): `buildUsedSet` reads base's `schema.prisma` with Prisma's engine into tables,
   columns, enums and unique indexes by database name; unusable schemas are errors, never empty.
+- SQL parser wrapper (T1.07): `parseSql` reads migration SQL with Postgres's own grammar; invalid SQL
+  is reported with its position instead of crashing.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

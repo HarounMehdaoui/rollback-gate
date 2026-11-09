@@ -13,6 +13,7 @@
   "dependencies": {
     "@prisma/get-dmmf": "7.10.1",
     "@prisma/prisma-schema-wasm": "8.1.0-1.d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
-    "@rollbackgate/core": "workspace:*"
+    "@rollbackgate/core": "workspace:*",
+    "libpg-query": "18.2.2"
   }
 }
