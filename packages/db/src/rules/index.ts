@@ -11,6 +11,7 @@ import { newCheckRule } from './new-check.js';
 import { newForeignKeyRule } from './new-foreign-key.js';
 import { newUniqueRule } from './new-unique.js';
 import { uniqueIndexDroppedRule } from './unique-index-dropped.js';
+import { removeEnumValueRule } from './remove-enum-value.js';
 import { renameColumnRule } from './rename-column.js';
 import { renameTableRule } from './rename-table.js';
 import { requiredColumnAddedRule } from './required-column-added.js';
@@ -41,6 +42,7 @@ export const dbRules: readonly Rule[] = [
   newForeignKeyRule,
   uniqueIndexDroppedRule,
   enumValueAddedRule,
+  removeEnumValueRule,
   enumRenamedRule,
   rowsUpdatedRule,
   rowsDeletedRule,
