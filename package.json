@@ -12,7 +12,8 @@
     "test": "tsc -b && vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "rollbackgate": "node packages/cli/dist/bin.js"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

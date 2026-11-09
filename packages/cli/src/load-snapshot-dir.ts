@@ -1,8 +1,9 @@
-import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import type { MigrationFile, Snapshot } from '@rollbackgate/core';
+
+import { hashSql } from './hash-sql.js';
 
 /**
  * Reads one release folder (`prisma/schema.prisma` and `prisma/migrations/*\/migration.sql`) into a
@@ -56,11 +57,6 @@ async function readRequired(path: string): Promise<string> {
     }
     throw error;
   }
-}
-
-// CRLF → LF first, so a Windows checkout doesn't look like an edited migration (RG-DB-020).
-function hashSql(sql: string): string {
-  return createHash('sha256').update(sql.replaceAll('\r\n', '\n'), 'utf8').digest('hex');
 }
 
 function isNotFound(error: unknown): boolean {

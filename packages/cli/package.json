@@ -13,5 +13,8 @@
   "dependencies": {
     "@rollbackgate/core": "workspace:*",
     "@rollbackgate/db": "workspace:*"
+  },
+  "bin": {
+    "rollbackgate": "./dist/bin.js"
   }
 }
