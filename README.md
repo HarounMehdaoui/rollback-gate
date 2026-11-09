@@ -6,8 +6,8 @@ Rollback Gate is a CI/CD tool that checks every release for one property: **if t
 wrong, can we safely roll back to the previous one?** It answers `SAFE`, `RISKY` or `UNSAFE`, explains
 each finding, suggests a fix, and can block deploys that would leave you with no way back.
 
-**A personal project in early development.** Phase 1 (database analyzer) is in progress, and features
-marked *planned* don't exist yet (see [Status](#status)). It isn't open to outside contributions yet.
+**A personal project in early development.** Phase 1 (database analyzer and the `check` command) is
+done, released as `v0.1.0`; features marked *planned* don't exist yet (see [Status](#status)). It isn't open to outside contributions yet.
 
 ## The problem
 
@@ -57,17 +57,20 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Example
 
+Retiring and dropping a column in the same release (RULES.md §5 explains why that can't be undone):
+
 ```text
 $ rollbackgate check --base v1.4.0 --head HEAD
+Rollback Gate: can HEAD be rolled back to v1.4.0?
 
-UNSAFE  RG-DB-002  Column "User"."name" is dropped but used by the previous release.
-        Why:  The v1.4.0 Prisma client selects "name"; every User query fails after a rollback.
-        Fix:  Retire the field first (@ignore, stop writing it), drop it one release later.
+UNSAFE  RG-DB-002  "User"."name"  (20261104000000_contract_name, statement 1)
+        Why:  Base selects every scalar column of model User, so every query on it fails once User.name is gone.
+        Fix:  Retire User.name first (@ignore it, stop writing it, make it optional if it is required), then drop the column one release later.
 
 Verdict: UNSAFE (1 unsafe, 0 risky)
 ```
 
-*(Output format is the Phase 1 target and may change.)*
+Exit code `1`. With `--format json` the same verdict is printed as JSON.
 
 ## Development
 
@@ -81,19 +84,31 @@ pnpm lint           # ESLint, incl. purity and dependency-direction rules
 pnpm format         # Prettier
 ```
 
-## Quick start *(available after Phase 1)*
+## Quick start
+
+Build it once:
 
 ```bash
+git clone https://github.com/HarounMehdaoui/rollback-gate.git
+cd rollback-gate
 pnpm install
 pnpm build
-pnpm rollbackgate check --base <last-release-tag> --head HEAD
 ```
+
+Then, from the root of a git repository that has `prisma/schema.prisma` and `prisma/migrations/`:
+
+```bash
+node /path/to/rollback-gate/packages/cli/dist/bin.js check --base <last-release-tag> --head HEAD
+```
+
+`--head worktree` checks uncommitted files instead of a commit. The `scenarios/` folder has small
+examples of every rule.
 
 ## Status
 
 | Phase | Scope | Status |
 |---|---|---|
-| 1 | DB analyzer, verdict engine, `check` command | 🚧 in progress |
+| 1 | DB analyzer, verdict engine, `check` command | ✅ done (`v0.1.0`) |
 | 2 | Config contract + rehearsal | planned |
 | 3 | CI integration (GitHub Actions) | planned |
 | 4 | Attestation (in-toto + cosign) | planned |
@@ -106,7 +121,10 @@ Task-level progress: [docs/TASKS.md](docs/TASKS.md).
 
 - Raw SQL inside application code is invisible to static analysis (the rehearsal partly covers this).
 - The rehearsal uses synthetic data and only covers the paths its smoke tests exercise.
-- Only PostgreSQL + Prisma.
+- Only PostgreSQL + Prisma, and only the `public` schema.
+- `check` reads `prisma/schema.prisma` relative to the current directory; a custom schema path set in
+  `prisma.config.ts` isn't followed yet.
+- Only the database analyzer runs today: the config contract and the rehearsal are *planned* (Phase 2).
 - Migration run-safety (locks, long rewrites) is out of scope — use squawk for that.
 - On plain Docker hosts, enforcement depends on the deploy script calling `verify-deploy`.
 
