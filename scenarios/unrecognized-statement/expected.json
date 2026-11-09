@@ -1,0 +1,10 @@
+{
+  "verdict": "RISKY",
+  "findings": [
+    {
+      "ruleId": "RG-DB-022",
+      "severity": "RISKY",
+      "target": "CREATE EXTENSION IF NOT EXISTS \"pgcrypto\""
+    }
+  ]
+}
