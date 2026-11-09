@@ -56,7 +56,7 @@ RG-DB-020 (UNSAFE, target = migration name), RG-DB-021 (UNSAFE, reason quotes th
 ### [x] T1.13 Rules: renames and required columns
 RG-DB-003, RG-DB-004, RG-DB-005 (UNSAFE). Scenarios `rename-used-table`, `rename-used-column`, `add-required-column`, and `prisma-field-rename` (Prisma's DROP + ADD → RG-DB-002 + RG-DB-005).
 
-### [ ] T1.14 Normalizer, part 2 (column alterations)
+### [~] T1.14 Normalizer, part 2 (column alterations)
 - **Goal:** `ALTER COLUMN … TYPE` (with/without `USING`), `SET/DROP NOT NULL`, `SET/DROP DEFAULT`.
 - **Files:** more files in `packages/db/src/sql/normalizers/` + tests
 - **Done when:** real `prisma migrate diff` output for each case normalizes correctly (copied into
