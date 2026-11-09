@@ -50,6 +50,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   `TRUNCATE`) become changes, checked against Prisma 7.10.1's real output.
 - Constraint and enum rules (T1.18): RG-DB-012 (unique), 013 (CHECK), 014 (foreign key), 015 (enum
   value added), 023 (unique index dropped) are RISKY; RG-DB-017 (enum renamed) is UNSAFE.
+- Data rules (T1.19): RG-DB-018 (used column rewritten) and RG-DB-019 (rows deleted), RISKY; a
+  backfill of a column added in the same release is SAFE.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
