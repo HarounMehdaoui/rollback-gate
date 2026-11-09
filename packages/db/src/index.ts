@@ -8,3 +8,4 @@ export {
   type SqlParseResult,
   type SqlSyntaxError,
 } from './sql/parse-sql.js';
+export { diffMigrations, type MigrationDiff } from './migrations/diff-migrations.js';
