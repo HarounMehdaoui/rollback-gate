@@ -38,6 +38,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   every scenario end to end (`drop-used-column`, `drop-ignored-column`).
 - Fail-closed rules (T1.12): RG-DB-020 (applied migration edited or removed) and RG-DB-021
   (unparsable SQL) are UNSAFE; RG-DB-022 (statement not modelled) is RISKY.
+- Rename and required-column rules (T1.13): RG-DB-003 (table renamed), RG-DB-004 (column renamed) and
+  RG-DB-005 (NOT NULL column without default added), UNSAFE when base uses the table.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
