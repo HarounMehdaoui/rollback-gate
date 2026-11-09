@@ -74,7 +74,7 @@ RG-DB-012, 013, 014, 015, 023 (RISKY) and RG-DB-017 (UNSAFE); RG-DB-023 looks th
 ### [x] T1.19 Rules: data changes
 RG-DB-018 and RG-DB-019 (RISKY); the backfill exception falls out of the used set. Scenarios `backfill-new-column` (SAFE), `update-used-column`, `delete-rows`.
 
-### [ ] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
+### [~] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
 - **Goal:** recognize Prisma's enum recreate sequence and replace its statements with one
   `RemoveEnumValue` change per removed value; RG-DB-016.
 - **Files:** `docs/adr/0006-multi-statement-patterns.md`,
