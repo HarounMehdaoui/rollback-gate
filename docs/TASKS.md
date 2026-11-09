@@ -47,7 +47,7 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.10 Rule engine + drop rules
 `runRules` (filters by `appliesTo`, adds `ruleId` and `source`), `dbRules`, RG-DB-001 and RG-DB-002, tested on used sets built from real schemas (`@ignore`, `@@ignore`, unknown names).
 
-### [ ] T1.11 `analyzeDb` + first scenarios
+### [~] T1.11 `analyzeDb` + first scenarios
 - **Goal:** pure `analyzeDb(base, head): Finding[]` in `db`: used set → history diff → parse →
   normalize (parse failure → `Unparsable`) → rules. The scenario runner calls it directly.
 - **Files:** `packages/db/src/analyze-db.ts` + test, `packages/cli/test/scenarios.test.ts` (wired),
