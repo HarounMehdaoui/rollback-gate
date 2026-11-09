@@ -28,6 +28,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   columns, enums and unique indexes by database name; unusable schemas are errors, never empty.
 - SQL parser wrapper (T1.07): `parseSql` reads migration SQL with Postgres's own grammar; invalid SQL
   is reported with its position instead of crashing.
+- Migration history diff (T1.08): `diffMigrations` finds the migrations a release adds and the
+  already-applied ones it edited or removed.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
