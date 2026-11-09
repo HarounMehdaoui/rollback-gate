@@ -13,7 +13,6 @@ Each phase ends with a git tag and a short demo you could show a reviewer.
 
 ## Open decisions (each becomes an ADR)
 
-- [ ] How multi-statement patterns (Prisma's enum recreate) are recognized — Phase 1, T1.20, ADR-0006
 - [ ] Can maintainers approve the override on their own PR? — before Phase 4
 - [ ] How a PR's override (label + rollback plan) carries into the release-mode verdict, which covers
   several PRs — before Phase 4.
@@ -22,7 +21,7 @@ Each phase ends with a git tag and a short demo you could show a reviewer.
   override from the PR that introduced it.
 - [ ] License (MIT vs Apache-2.0) — before first public release
 
-Resolved: Prisma schema parser (ADR-0004) · SQL parser (ADR-0005) · severity principle, certain →
+Resolved: Prisma schema parser (ADR-0004) · SQL parser (ADR-0005) · multi-statement patterns (ADR-0006) · severity principle, certain →
 UNSAFE, possible → RISKY (RULES.md §3) · Prisma "verify" items answered by experiment (RULES.md §6) ·
 RG-DB-023 and RG-DB-011 on a nullable column are RISKY (RULES.md §4).
 

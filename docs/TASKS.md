@@ -74,15 +74,8 @@ RG-DB-012, 013, 014, 015, 023 (RISKY) and RG-DB-017 (UNSAFE); RG-DB-023 looks th
 ### [x] T1.19 Rules: data changes
 RG-DB-018 and RG-DB-019 (RISKY); the backfill exception falls out of the used set. Scenarios `backfill-new-column` (SAFE), `update-used-column`, `delete-rows`.
 
-### [~] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
-- **Goal:** recognize Prisma's enum recreate sequence and replace its statements with one
-  `RemoveEnumValue` change per removed value; RG-DB-016.
-- **Files:** `docs/adr/0006-multi-statement-patterns.md`,
-  `packages/db/src/sql/patterns/enum-recreate.ts`, `rules/remove-enum-value.ts` + tests + scenario
-- **Done when:** the ADR records how patterns are matched (where in the pipeline, what happens on a
-  partial match: it must fail closed), and real Prisma output for removing an enum value gives
-  exactly RG-DB-016.
-- **Learn:** why "one statement → one change" breaks down, and how to extend a pipeline safely.
+### [x] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
+ADR-0006: recognizer on each migration's normalized changes, before the rules; exact match or nothing (a partial match keeps RG-DB-008 + RG-DB-017). `sql/patterns/enum-recreate.ts`, RG-DB-016 (RISKY); scenario `remove-enum-value` on Prisma 7.10.1's real output gives exactly RG-DB-016.
 
 ### [ ] T1.21 `check` command
 - **Goal:** `rollbackgate check --base <ref> --head <ref|worktree> [--format text|json]`.
