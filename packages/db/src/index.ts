@@ -9,3 +9,5 @@ export {
   type SqlSyntaxError,
 } from './sql/parse-sql.js';
 export { diffMigrations, type MigrationDiff } from './migrations/diff-migrations.js';
+export { dbRules } from './rules/index.js';
+export { runRules } from './rules/run-rules.js';
