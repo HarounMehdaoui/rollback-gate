@@ -62,7 +62,7 @@ RG-DB-003, RG-DB-004, RG-DB-005 (UNSAFE). Scenarios `rename-used-table`, `rename
 ### [x] T1.15 Rules: nullability and defaults
 RG-DB-009 and RG-DB-010 (RISKY, by base's optionality), RG-DB-011 (`autoincrement()` / `dbgenerated()` only; UNSAFE if required, RISKY if optional). Scenarios `set-not-null-optional`, `drop-not-null-required`, `drop-database-default`.
 
-### [ ] T1.16 Rules: types
+### [~] T1.16 Rules: types
 - **Goal:** type compatibility table (Postgres type normalization, known widenings) + RG-DB-006
   narrowing, RG-DB-007 widening across Prisma scalars, RG-DB-008 unknown type change.
 - **Files:** `packages/db/src/rules/type-compat.ts`, one rule file each + tests + scenarios
