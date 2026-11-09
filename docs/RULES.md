@@ -315,12 +315,12 @@ finding, except a unique index base's `upsert` relies on (RG-DB-023).
 - **Why (possible):** base breaks only on the code paths that write the removed value.
 - **Reason:** base writes that use the removed value fail with "invalid input value for enum".
 - **Fix:** stop writing the value in one release, and remove it one release later.
-- **Before T1.20:** the recreate statements fall through to RG-DB-008 (`ALTER COLUMN … TYPE "Role_new"`
-  is an unknown type change) and RG-DB-017, so the tool fails closed (UNSAFE, stricter than the final
-  RISKY) until the recognizer exists. Prisma's exact SQL (§6 row 8), inside `BEGIN; … COMMIT;`:
-  `CREATE TYPE "X_new"` → `ALTER COLUMN … DROP DEFAULT` → `ALTER COLUMN … TYPE "X_new" USING …` →
-  `ALTER TYPE "X" RENAME TO "X_old"` → `ALTER TYPE "X_new" RENAME TO "X"` → `DROP TYPE "X_old"` →
-  `ALTER COLUMN … SET DEFAULT …` (the default lines appear only when the column has a default).
+- **Recognizer (ADR-0006, T1.20):** Prisma's exact recreate sequence (§6 row 8), inside `BEGIN; … COMMIT;`:
+  `CREATE TYPE "X_new"` → per column `ALTER COLUMN … DROP DEFAULT` (only with a default) and
+  `ALTER COLUMN … TYPE "X_new"[ [] ] USING …` → `ALTER TYPE "X" RENAME TO "X_old"` →
+  `ALTER TYPE "X_new" RENAME TO "X"` → `DROP TYPE "X_old"` → `ALTER COLUMN … SET DEFAULT …` for each
+  dropped default. It becomes one `RemoveEnumValue` per value base has and the new list doesn't. Any
+  other or partial sequence stays as it is and gives RG-DB-008 and RG-DB-017 (UNSAFE, fail-closed).
 - **Phase:** 1
 
 #### RG-DB-017 · Enum type renamed

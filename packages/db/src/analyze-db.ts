@@ -11,6 +11,7 @@ import { buildUsedSet } from './prisma/used-set.js';
 import { dbRules } from './rules/index.js';
 import { runRules } from './rules/run-rules.js';
 import { normalizeMigration } from './sql/normalize.js';
+import { recognizeEnumRecreate } from './sql/patterns/enum-recreate.js';
 import { parseSql } from './sql/parse-sql.js';
 
 /**
@@ -26,7 +27,8 @@ export class UnusableBaseSchemaError extends Error {
 }
 
 /**
- * The DB analyzer (ARCHITECTURE §5 steps 3–6): used set → history diff → parse → normalize → rules.
+ * The DB analyzer (ARCHITECTURE §5 steps 3–6): used set → history diff → parse → normalize →
+ * multi-statement patterns (ADR-0006) → rules.
  * Pure: two snapshots in, findings out. The cli must have awaited `initSqlParser()` first.
  */
 export const analyzeDb: Analyzer = (base, head) => {
@@ -44,7 +46,10 @@ export function collectDbChanges(
   const history = diffMigrations(base, head);
   return {
     context: { usedSet: usedSet.usedSet },
-    changes: [...history.changes, ...history.newMigrations.flatMap(changesOf)],
+    changes: [
+      ...history.changes,
+      ...history.newMigrations.flatMap((m) => recognizeEnumRecreate(changesOf(m), usedSet.usedSet)),
+    ],
   };
 }
 

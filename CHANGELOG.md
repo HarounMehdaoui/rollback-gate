@@ -52,6 +52,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   value added), 023 (unique index dropped) are RISKY; RG-DB-017 (enum renamed) is UNSAFE.
 - Data rules (T1.19): RG-DB-018 (used column rewritten) and RG-DB-019 (rows deleted), RISKY; a
   backfill of a column added in the same release is SAFE.
+- Enum value removal (T1.20): ADR-0006; Prisma's enum recreate sequence is recognized as RG-DB-016
+  (RISKY), and any partial sequence stays UNSAFE.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every

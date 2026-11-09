@@ -1,0 +1,4 @@
+{
+  "verdict": "RISKY",
+  "findings": [{ "ruleId": "RG-DB-016", "severity": "RISKY", "target": "\"Role\".'ADMIN'" }]
+}
