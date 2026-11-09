@@ -77,7 +77,7 @@ RG-DB-018 and RG-DB-019 (RISKY); the backfill exception falls out of the used se
 ### [x] T1.20 Enum value removal (multi-statement pattern) + ADR-0006
 ADR-0006: recognizer on each migration's normalized changes, before the rules; exact match or nothing (a partial match keeps RG-DB-008 + RG-DB-017). `sql/patterns/enum-recreate.ts`, RG-DB-016 (RISKY); scenario `remove-enum-value` on Prisma 7.10.1's real output gives exactly RG-DB-016.
 
-### [ ] T1.21 `check` command
+### [~] T1.21 `check` command
 - **Goal:** `rollbackgate check --base <ref> --head <ref|worktree> [--format text|json]`.
   Loads snapshots from git (or the working tree via T1.04's loader), runs `analyzeDb`, computes the
   verdict, prints, exits `0` (SAFE/RISKY), `1` (UNSAFE) or `2` (tool error).
