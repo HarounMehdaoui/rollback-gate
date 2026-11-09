@@ -44,11 +44,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.09 Normalizer, part 1 (tables and columns)
 `normalizeMigration` + one adapter per statement type in `sql/normalizers/`. Multi-action `ALTER TABLE` → one change per action; an unknown action adds one `Unrecognized` beside the known ones; inline column constraints → `AddConstraint`; identity and primary key columns count as NOT NULL; `ROLLBACK` is `Unrecognized`.
 
-### [ ] T1.10 Rule engine + drop rules
-- **Goal:** `runRules(sourcedChanges, ctx, rules) → Finding[]` (adds `ruleId` and `source`);
-  RG-DB-001 drop table, RG-DB-002 drop column.
-- **Files:** `packages/db/src/rules/{index,run-rules,drop-table,drop-column}.ts` + tests
-- **Done when:** unit tests pass for used and unused (`@ignore`, `@@ignore`, unknown) tables and columns.
+### [x] T1.10 Rule engine + drop rules
+`runRules` (filters by `appliesTo`, adds `ruleId` and `source`), `dbRules`, RG-DB-001 and RG-DB-002, tested on used sets built from real schemas (`@ignore`, `@@ignore`, unknown names).
 
 ### [ ] T1.11 `analyzeDb` + first scenarios
 - **Goal:** pure `analyzeDb(base, head): Finding[]` in `db`: used set → history diff → parse →

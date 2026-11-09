@@ -32,6 +32,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
   already-applied ones it edited or removed.
 - Normalizer, part 1 (T1.09): table and column statements become changes, one per action; anything
   not modelled, or outside the `public` schema, becomes `Unrecognized`.
+- Rule engine and first rules (T1.10): `runRules`; RG-DB-001 (table dropped) and RG-DB-002 (column
+  dropped), UNSAFE when base uses them.
 
 ### Changed
 - RG-DB-011 now applies only to `autoincrement()` and `dbgenerated()` defaults: Prisma 7 sends every
