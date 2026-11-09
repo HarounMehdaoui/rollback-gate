@@ -66,18 +66,23 @@ interface Snapshot {
 }
 
 // What base's code can touch. Type lives in core (rules need it); db builds it (T1.06).
-interface UsedSet { tables: ReadonlyMap<string, UsedTable>; enums: ReadonlyMap<string, UsedEnum> }
+interface UsedSet {
+  tables: ReadonlyMap<string, UsedTable>;
+  enums: ReadonlyMap<string, UsedEnum>;
+  uniqueIndexes: ReadonlyMap<string, UsedUniqueIndex>;   // by index name, for RG-DB-023
+}
 interface UsedTable { model: string; columns: ReadonlyMap<string, UsedColumn> }  // keys: DB names
 interface UsedColumn {
   field: string;               // Prisma field name
   prismaType: string;          // 'String' | 'Int' | … | an enum's Prisma name
-  nativeType: string | null;   // Postgres type; null = couldn't resolve → RG-DB-008 (UNSAFE)
+  nativeType: string | null;   // Postgres's own spelling ('int4', 'varchar(255)', enum name); null → RG-DB-008
   isOptional: boolean;
   isList: boolean;
   default?: string;            // raw @default(...) text; RG-DB-011 only cares about autoincrement()/dbgenerated()
   enumName?: string;           // DB name of the enum type, for enum columns
 }
 interface UsedEnum { values: readonly string[] }
+interface UsedUniqueIndex { table: string; columns: readonly string[]; isPrimaryKey: boolean }
 
 // A discriminated union on `kind`, one variant per kind (fields: packages/core/src/change.ts):
 //   tables       CreateTable, DropTable, RenameTable
@@ -151,7 +156,9 @@ running. See [ADR-0001](adr/0001-release-mode-against-deployed-base.md).
 2. **Analyze (db, pure):** `analyzeDb(base, head)` runs steps 3–7 and returns `Finding[]`.
 3. **Used set:** parse base `schema.prisma`; collect tables, columns and enums not marked
    `@ignore`/`@@ignore`; resolve `@map`/`@@map` to real names; record each column's type (Prisma
-   scalar + native type), optionality, default and enum.
+   scalar + native type), optionality, default and enum; record base's unique indexes and primary keys
+   by name (`map:`, or Prisma's default name). A base schema that is invalid, empty, has no PostgreSQL
+   datasource or a model outside `public` is a tool error (exit `2`), never an empty used set.
 4. **Migration history diff:** new migrations = in head but not in base. A migration in base that is
    missing from head, or has a different sha256, produces an `EditedMigration` change.
 5. **Normalize:** parse each new migration with libpg-query. If the file fails to parse → one

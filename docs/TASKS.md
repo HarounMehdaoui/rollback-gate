@@ -32,19 +32,8 @@ Every Prisma assumption checked by experiment on Prisma 7.10.1 / Postgres 18.6 /
 ### [x] T1.05b Spike + ADRs: Prisma schema parser and SQL parser
 `@prisma/get-dmmf` and `libpg-query` chosen by trial; Node 26 confirmed (#5). ADR-0004, ADR-0005; spike code in the PR's history.
 
-### [~] T1.06 Prisma snapshot → UsedSet
-- **Goal:** `buildUsedSet(schemaText) → UsedSet` with real DB names, ignoring `@ignore`/`@@ignore`,
-  read with `@prisma/get-dmmf` (ADR-0004). Each column records Prisma scalar, native type (`@db.*` or
-  the scalar's default), optionality, list, default (rendered back to text) and enum; enum values by
-  database name (RULES.md §2). Also base's unique indexes by name, for RG-DB-023: the `map:` value, or
-  Prisma's default computed from database names (ADR-0004, "Consequences").
-- **Fail-closed:** an invalid schema, or one with no models or no PostgreSQL datasource, is an error,
-  never an empty used set (ADR-0004).
-- **Files:** `packages/db/src/prisma/{parse-schema,used-set}.ts` + tests
-- **Done when:** tests cover `@map`, `@@map`, `@ignore`, `@@ignore`, relation fields (no column),
-  `@id`, enums (incl. `@@map` on enums and `@map` on values), `@db.*` types and default native types,
-  default index names (including one cut at 63 characters), and the invalid and empty schemas.
-- **Learn:** the difference between Prisma model names and database names.
+### [x] T1.06 Prisma snapshot → UsedSet
+`buildUsedSet` with Prisma's engine; unique indexes by name in `UsedSet`. Owner's decisions: unusable base schema = tool error (exit 2); native types in Postgres's spelling (`int4`, enum name, `null` if unknown); datasource read with the engine's `get_config`; models outside `public` rejected. ARCHITECTURE §3 and §5 step 3.
 
 ### [ ] T1.07 SQL parser wrapper
 - **Goal:** `parseSql(sql) → { ok: true, statements } | { ok: false, error }` around libpg-query's
